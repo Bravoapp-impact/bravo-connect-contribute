@@ -97,7 +97,7 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
-        return <Badge className="bg-sage text-white">Confermata</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground">Confermata</Badge>;
       case "cancelled":
         return <Badge variant="destructive">Annullata</Badge>;
       default:

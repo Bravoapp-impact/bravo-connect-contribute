@@ -27,8 +27,8 @@ export function MetricsCards({
       label: "Ore di Volontariato",
       value: totalVolunteerHours.toFixed(1),
       icon: Clock,
-      color: "text-sage",
-      bgColor: "bg-sage-light",
+      color: "text-secondary",
+      bgColor: "bg-secondary/10",
     },
     {
       label: "Beneficiari Raggiunti",

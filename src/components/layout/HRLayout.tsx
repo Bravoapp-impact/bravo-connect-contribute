@@ -44,7 +44,7 @@ export function HRLayout({ children }: HRLayoutProps) {
                 Bravo!
               </motion.span>
             </Link>
-            <Badge variant="secondary" className="bg-sage-light text-sage font-medium">
+            <Badge variant="secondary" className="bg-bravo-purple/10 text-bravo-purple font-medium">
               HR Admin
             </Badge>
           </div>
