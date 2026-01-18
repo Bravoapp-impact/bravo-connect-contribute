@@ -60,25 +60,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Bravo! custom colors
-        terracotta: {
-          DEFAULT: "hsl(var(--terracotta))",
-          light: "hsl(var(--terracotta-light))",
-          dark: "hsl(var(--terracotta-dark))",
-        },
-        sage: {
-          DEFAULT: "hsl(var(--sage))",
-          light: "hsl(var(--sage-light))",
-        },
-        amber: {
-          DEFAULT: "hsl(var(--amber))",
-        },
-        cream: {
-          DEFAULT: "hsl(var(--cream))",
-          dark: "hsl(var(--cream-dark))",
-        },
-        charcoal: {
-          DEFAULT: "hsl(var(--charcoal))",
+        bravo: {
+          purple: "hsl(var(--bravo-purple))",
+          magenta: "hsl(var(--bravo-magenta))",
+          pink: "hsl(var(--bravo-pink))",
+          orange: "hsl(var(--bravo-orange))",
+          yellow: "hsl(var(--bravo-yellow))",
         },
       },
       borderRadius: {
