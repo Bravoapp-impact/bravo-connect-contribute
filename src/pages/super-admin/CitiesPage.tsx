@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { devLog } from "@/lib/logger";
 
 interface City {
   id: string;
@@ -71,7 +72,7 @@ export default function CitiesPage() {
       if (error) throw error;
       setCities(data || []);
     } catch (error) {
-      console.error("Error fetching cities:", error);
+      devLog.error("Error fetching cities:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -145,7 +146,7 @@ export default function CitiesPage() {
       setDialogOpen(false);
       fetchCities();
     } catch (error: any) {
-      console.error("Error saving city:", error);
+      devLog.error("Error saving city:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -178,7 +179,7 @@ export default function CitiesPage() {
       setSelectedCity(null);
       fetchCities();
     } catch (error: any) {
-      console.error("Error deleting city:", error);
+      devLog.error("Error deleting city:", error);
       toast({
         variant: "destructive",
         title: "Errore",

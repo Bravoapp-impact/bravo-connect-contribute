@@ -59,6 +59,7 @@ import { it } from "date-fns/locale";
 import { getAllSDGs } from "@/lib/sdg-data";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExperienceDateDialog } from "@/components/super-admin/ExperienceDateDialog";
+import { devLog } from "@/lib/logger";
 
 interface Association {
   id: string;
@@ -167,7 +168,7 @@ export default function ExperiencesPage() {
       setCities(citiesRes.data || []);
       setCategories(categoriesRes.data || []);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      devLog.error("Error fetching data:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -297,7 +298,7 @@ export default function ExperiencesPage() {
       setDialogOpen(false);
       fetchData();
     } catch (error: any) {
-      console.error("Error saving experience:", error);
+      devLog.error("Error saving experience:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -328,7 +329,7 @@ export default function ExperiencesPage() {
       setSelectedExperience(null);
       fetchData();
     } catch (error: any) {
-      console.error("Error deleting experience:", error);
+      devLog.error("Error deleting experience:", error);
       toast({
         variant: "destructive",
         title: "Errore",

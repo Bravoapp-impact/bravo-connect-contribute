@@ -35,6 +35,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { devLog } from "@/lib/logger";
 
 interface Company {
   id: string;
@@ -94,7 +95,7 @@ export default function CompaniesPage() {
 
       setCompanies(companiesWithCounts);
     } catch (error) {
-      console.error("Error fetching companies:", error);
+      devLog.error("Error fetching companies:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -181,7 +182,7 @@ export default function CompaniesPage() {
       setDialogOpen(false);
       fetchCompanies();
     } catch (error: any) {
-      console.error("Error saving company:", error);
+      devLog.error("Error saving company:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -212,7 +213,7 @@ export default function CompaniesPage() {
       setSelectedCompany(null);
       fetchCompanies();
     } catch (error: any) {
-      console.error("Error deleting company:", error);
+      devLog.error("Error deleting company:", error);
       toast({
         variant: "destructive",
         title: "Errore",

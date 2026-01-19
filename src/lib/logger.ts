@@ -1,0 +1,29 @@
+/**
+ * Development-only logger utility
+ * Prevents sensitive error details from being exposed in production
+ */
+
+const isDev = import.meta.env.DEV;
+
+export const devLog = {
+  error: (...args: unknown[]) => {
+    if (isDev) {
+      console.error(...args);
+    }
+  },
+  warn: (...args: unknown[]) => {
+    if (isDev) {
+      console.warn(...args);
+    }
+  },
+  log: (...args: unknown[]) => {
+    if (isDev) {
+      console.log(...args);
+    }
+  },
+  info: (...args: unknown[]) => {
+    if (isDev) {
+      console.info(...args);
+    }
+  },
+};

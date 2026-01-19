@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { devLog } from "@/lib/logger";
 
 interface ExperienceDate {
   id: string;
@@ -136,7 +137,7 @@ export function ExperienceDateDialog({
 
       onSaved();
     } catch (error: any) {
-      console.error("Error saving experience date:", error);
+      devLog.error("Error saving experience date:", error);
       toast({
         variant: "destructive",
         title: "Errore",
