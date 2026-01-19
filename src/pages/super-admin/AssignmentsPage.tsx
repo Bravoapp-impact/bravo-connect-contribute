@@ -16,6 +16,7 @@ import {
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { devLog } from "@/lib/logger";
 
 interface Experience {
   id: string;
@@ -67,7 +68,7 @@ export default function AssignmentsPage() {
       setCompanies(companiesRes.data || []);
       setAssignments(assignmentsRes.data || []);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      devLog.error("Error fetching data:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -127,7 +128,7 @@ export default function AssignmentsPage() {
         });
       }
     } catch (error: any) {
-      console.error("Error toggling assignment:", error);
+      devLog.error("Error toggling assignment:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -171,7 +172,7 @@ export default function AssignmentsPage() {
         description: `${newAssignments.length} esperienze assegnate`,
       });
     } catch (error: any) {
-      console.error("Error bulk assigning:", error);
+      devLog.error("Error bulk assigning:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -199,7 +200,7 @@ export default function AssignmentsPage() {
         description: "Tutte le assegnazioni rimosse",
       });
     } catch (error: any) {
-      console.error("Error removing all:", error);
+      devLog.error("Error removing all:", error);
       toast({
         variant: "destructive",
         title: "Errore",

@@ -23,6 +23,7 @@ import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { devLog } from "@/lib/logger";
 
 interface Profile {
   id: string;
@@ -71,7 +72,7 @@ export default function UsersPage() {
       setUsers(usersRes.data || []);
       setCompanies(companiesRes.data || []);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      devLog.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }

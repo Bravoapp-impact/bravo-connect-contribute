@@ -8,6 +8,7 @@ import { UpcomingEvents } from "@/components/hr/UpcomingEvents";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { devLog } from "@/lib/logger";
 
 interface DashboardData {
   employeesCount: number;
@@ -207,7 +208,7 @@ export default function HRDashboard() {
         upcomingEvents: eventsWithParticipants,
       });
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      devLog.error("Error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }

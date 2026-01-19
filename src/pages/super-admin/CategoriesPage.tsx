@@ -37,6 +37,7 @@ import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getAllSDGs } from "@/lib/sdg-data";
+import { devLog } from "@/lib/logger";
 
 interface Category {
   id: string;
@@ -76,7 +77,7 @@ export default function CategoriesPage() {
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      devLog.error("Error fetching categories:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -150,7 +151,7 @@ export default function CategoriesPage() {
       setDialogOpen(false);
       fetchCategories();
     } catch (error: any) {
-      console.error("Error saving category:", error);
+      devLog.error("Error saving category:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -183,7 +184,7 @@ export default function CategoriesPage() {
       setSelectedCategory(null);
       fetchCategories();
     } catch (error: any) {
-      console.error("Error deleting category:", error);
+      devLog.error("Error deleting category:", error);
       toast({
         variant: "destructive",
         title: "Errore",

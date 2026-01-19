@@ -58,6 +58,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { devLog } from "@/lib/logger";
 
 interface City {
   id: string;
@@ -147,7 +148,7 @@ export default function AssociationsPage() {
       setAssociations(associationsWithCities);
       setCities(citiesRes.data || []);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      devLog.error("Error fetching data:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -278,7 +279,7 @@ export default function AssociationsPage() {
       setDialogOpen(false);
       fetchData();
     } catch (error: any) {
-      console.error("Error saving association:", error);
+      devLog.error("Error saving association:", error);
       toast({
         variant: "destructive",
         title: "Errore",
@@ -311,7 +312,7 @@ export default function AssociationsPage() {
       setSelectedAssociation(null);
       fetchData();
     } catch (error: any) {
-      console.error("Error deleting association:", error);
+      devLog.error("Error deleting association:", error);
       toast({
         variant: "destructive",
         title: "Errore",
