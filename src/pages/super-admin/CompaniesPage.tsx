@@ -447,7 +447,8 @@ export default function CompaniesPage() {
                 onLogoChange={(url) =>
                   setFormData({ ...formData, logo_url: url || "" })
                 }
-                companyId={selectedCompany?.id}
+                entityId={selectedCompany?.id}
+                bucket="company-logos"
               />
             </div>
           </div>

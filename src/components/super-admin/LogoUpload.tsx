@@ -8,13 +8,14 @@ import { devLog } from "@/lib/logger";
 interface LogoUploadProps {
   currentLogoUrl: string | null;
   onLogoChange: (url: string | null) => void;
-  companyId?: string;
+  entityId?: string;
+  bucket?: "company-logos" | "association-logos";
 }
 
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
-export function LogoUpload({ currentLogoUrl, onLogoChange, companyId }: LogoUploadProps) {
+export function LogoUpload({ currentLogoUrl, onLogoChange, entityId, bucket = "company-logos" }: LogoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentLogoUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,12 +50,12 @@ export function LogoUpload({ currentLogoUrl, onLogoChange, companyId }: LogoUplo
     try {
       // Create a unique filename
       const fileExt = file.name.split(".").pop();
-      const fileName = `${companyId || crypto.randomUUID()}-${Date.now()}.${fileExt}`;
+      const fileName = `${entityId || crypto.randomUUID()}-${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
-        .from("company-logos")
+        .from(bucket)
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: true,
@@ -64,7 +65,7 @@ export function LogoUpload({ currentLogoUrl, onLogoChange, companyId }: LogoUplo
 
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from("company-logos")
+        .from(bucket)
         .getPublicUrl(filePath);
 
       const publicUrl = urlData.publicUrl;
