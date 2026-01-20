@@ -9,13 +9,15 @@ interface LogoUploadProps {
   currentLogoUrl: string | null;
   onLogoChange: (url: string | null) => void;
   entityId?: string;
-  bucket?: "company-logos" | "association-logos";
+  bucket?: "company-logos" | "association-logos" | "experience-images";
+  label?: string;
+  aspectRatio?: "square" | "wide";
 }
 
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
-export function LogoUpload({ currentLogoUrl, onLogoChange, entityId, bucket = "company-logos" }: LogoUploadProps) {
+export function LogoUpload({ currentLogoUrl, onLogoChange, entityId, bucket = "company-logos", label = "Carica logo", aspectRatio = "square" }: LogoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentLogoUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -98,14 +100,18 @@ export function LogoUpload({ currentLogoUrl, onLogoChange, entityId, bucket = "c
     onLogoChange(null);
   };
 
+  const sizeClasses = aspectRatio === "wide" 
+    ? "w-48 h-28" 
+    : "w-24 h-24";
+
   return (
     <div className="space-y-3">
       {previewUrl ? (
         <div className="relative inline-block">
           <img
             src={previewUrl}
-            alt="Logo preview"
-            className="w-24 h-24 object-contain rounded-lg border border-border bg-white p-2"
+            alt="Preview"
+            className={`${sizeClasses} object-cover rounded-lg border border-border bg-white`}
           />
           <Button
             type="button"
@@ -119,7 +125,7 @@ export function LogoUpload({ currentLogoUrl, onLogoChange, entityId, bucket = "c
         </div>
       ) : (
         <div
-          className="w-24 h-24 rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
+          className={`${sizeClasses} rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors`}
           onClick={() => fileInputRef.current?.click()}
         >
           {uploading ? (
@@ -153,13 +159,13 @@ export function LogoUpload({ currentLogoUrl, onLogoChange, entityId, bucket = "c
               Caricamento...
             </>
           ) : (
-            <>
-              <Upload className="h-4 w-4 mr-2" />
-              {previewUrl ? "Cambia" : "Carica logo"}
-            </>
-          )}
-        </Button>
-      </div>
+          <>
+            <Upload className="h-4 w-4 mr-2" />
+            {previewUrl ? "Cambia" : label}
+          </>
+        )}
+      </Button>
+    </div>
 
       <p className="text-xs text-muted-foreground">
         PNG, JPG, WebP, SVG • Max 2 MB
