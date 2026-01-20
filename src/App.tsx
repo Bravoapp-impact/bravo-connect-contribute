@@ -12,6 +12,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Experiences from "./pages/Experiences";
 import MyBookings from "./pages/MyBookings";
+import Impact from "./pages/Impact";
+import Profile from "./pages/Profile";
 import HRDashboard from "./pages/HRDashboard";
 import HRExperiencesPage from "./pages/hr/HRExperiencesPage";
 import HREmployeesPage from "./pages/hr/HREmployeesPage";
@@ -51,6 +53,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <MyBookings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/app/impact"
+              element={
+                <ProtectedRoute>
+                  <Impact />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/app/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
