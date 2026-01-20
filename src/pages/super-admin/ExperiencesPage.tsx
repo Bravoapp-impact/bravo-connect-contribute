@@ -62,6 +62,7 @@ import { getAllSDGs } from "@/lib/sdg-data";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExperienceDateDialog } from "@/components/super-admin/ExperienceDateDialog";
 import { devLog } from "@/lib/logger";
+import { LogoUpload } from "@/components/super-admin/LogoUpload";
 
 interface Association {
   id: string;
@@ -867,14 +868,14 @@ export default function ExperiencesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image_url">URL Immagine</Label>
-              <Input
-                id="image_url"
-                value={formData.image_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, image_url: e.target.value })
-                }
-                placeholder="https://..."
+              <Label>Immagine di Copertina</Label>
+              <LogoUpload
+                currentLogoUrl={formData.image_url}
+                onLogoChange={(url) => setFormData({ ...formData, image_url: url || "" })}
+                entityId={selectedExperience?.id}
+                bucket="experience-images"
+                label="Carica immagine"
+                aspectRatio="wide"
               />
             </div>
 
