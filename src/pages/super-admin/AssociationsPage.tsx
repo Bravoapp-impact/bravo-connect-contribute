@@ -59,6 +59,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { devLog } from "@/lib/logger";
+import { LogoUpload } from "@/components/super-admin/LogoUpload";
 
 interface City {
   id: string;
@@ -659,14 +660,14 @@ export default function AssociationsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="logo_url">URL Logo</Label>
-              <Input
-                id="logo_url"
-                value={formData.logo_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, logo_url: e.target.value })
+              <Label>Logo</Label>
+              <LogoUpload
+                currentLogoUrl={formData.logo_url || null}
+                onLogoChange={(url) =>
+                  setFormData({ ...formData, logo_url: url || "" })
                 }
-                placeholder="https://..."
+                entityId={selectedAssociation?.id}
+                bucket="association-logos"
               />
             </div>
 
