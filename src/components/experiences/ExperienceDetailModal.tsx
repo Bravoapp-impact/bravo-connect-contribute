@@ -100,17 +100,30 @@ export function ExperienceDetailModal({
 
     setIsBooking(true);
     try {
-      const { error } = await supabase.from("bookings").insert({
+      const { data: bookingData, error } = await supabase.from("bookings").insert({
         user_id: user.id,
         experience_date_id: selectedDateId,
         status: "confirmed",
-      });
+      }).select().single();
 
       if (error) {
         if (error.code === "23505") {
           throw new Error("Sei già prenotato per questa data");
         }
         throw error;
+      }
+
+      // Trigger confirmation email (fire and forget)
+      if (bookingData) {
+        supabase.functions.invoke("send-booking-confirmation", {
+          body: { booking_id: bookingData.id },
+        }).then(({ error: emailError }) => {
+          if (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+          } else {
+            console.log("Confirmation email triggered");
+          }
+        });
       }
 
       toast({

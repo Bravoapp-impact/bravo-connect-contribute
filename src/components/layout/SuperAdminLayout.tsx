@@ -15,6 +15,7 @@ import {
   MapPin,
   Tag,
   Heart,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -73,6 +74,11 @@ const sidebarItems = [
     label: "Categorie",
     icon: Tag,
     href: "/super-admin/categories",
+  },
+  {
+    label: "Email Templates",
+    icon: Mail,
+    href: "/super-admin/email-templates",
   },
 ];
 

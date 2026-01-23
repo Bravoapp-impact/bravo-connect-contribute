@@ -218,6 +218,117 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          booking_id: string
+          email_type: string
+          id: string
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          booking_id: string
+          email_type: string
+          id?: string
+          sent_at?: string
+          status?: string
+        }
+        Update: {
+          booking_id?: string
+          email_type?: string
+          id?: string
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_settings: {
+        Row: {
+          company_id: string
+          confirmation_enabled: boolean
+          created_at: string
+          id: string
+          reminder_enabled: boolean
+          reminder_hours_before: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          confirmation_enabled?: boolean
+          created_at?: string
+          id?: string
+          reminder_enabled?: boolean
+          reminder_hours_before?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          confirmation_enabled?: boolean
+          created_at?: string
+          id?: string
+          reminder_enabled?: boolean
+          reminder_hours_before?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_templates: {
+        Row: {
+          closing_text: string | null
+          company_id: string
+          created_at: string
+          id: string
+          intro_text: string | null
+          subject: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          closing_text?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          intro_text?: string | null
+          subject: string
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          closing_text?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          intro_text?: string | null
+          subject?: string
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       experience_companies: {
         Row: {
           company_id: string
