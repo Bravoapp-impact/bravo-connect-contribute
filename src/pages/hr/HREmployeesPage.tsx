@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { it } from "date-fns/locale";
 import {
   Loader2,
@@ -30,6 +30,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmployeeParticipationsDialog } from "@/components/hr/EmployeeParticipationsDialog";
+import { EmployeeMetricsCards } from "@/components/hr/EmployeeMetricsCards";
+import { TopPerformersTable } from "@/components/hr/TopPerformersTable";
 
 interface EmployeeStats {
   id: string;
@@ -44,11 +46,17 @@ interface EmployeeStats {
 type SortField = "name" | "experiences" | "hours" | "last_participation";
 type SortDirection = "asc" | "desc";
 
+interface MonthlyData {
+  month: string;
+  count: number;
+}
+
 export default function HREmployeesPage() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [employees, setEmployees] = useState<EmployeeStats[]>([]);
+  const [monthlyTrend, setMonthlyTrend] = useState<MonthlyData[]>([]);
 
   // Filters and sorting
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,6 +131,31 @@ export default function HREmployeesPage() {
           last_participation: null,
         });
       });
+
+      // Calculate monthly trend (last 3 months)
+      const now = new Date();
+      const monthlyData: MonthlyData[] = [];
+      
+      for (let i = 2; i >= 0; i--) {
+        const monthDate = subMonths(now, i);
+        const monthStart = startOfMonth(monthDate);
+        const monthEnd = endOfMonth(monthDate);
+        
+        const count = (bookingsData || []).filter((booking) => {
+          const expDate = booking.experience_dates as unknown as {
+            start_datetime: string;
+          };
+          const bookingDate = new Date(expDate.start_datetime);
+          return bookingDate >= monthStart && bookingDate <= monthEnd && bookingDate <= now;
+        }).length;
+        
+        monthlyData.push({
+          month: format(monthDate, "MMM", { locale: it }),
+          count,
+        });
+      }
+      
+      setMonthlyTrend(monthlyData);
 
       // Aggregate bookings data
       (bookingsData || []).forEach((booking) => {
@@ -352,6 +385,12 @@ export default function HREmployeesPage() {
             )}
           </p>
         </motion.div>
+
+        {/* Metrics Cards */}
+        <EmployeeMetricsCards employees={employees} monthlyTrend={monthlyTrend} />
+
+        {/* Top Performers */}
+        <TopPerformersTable employees={employees} />
 
         {/* Filters */}
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
