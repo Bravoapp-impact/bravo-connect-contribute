@@ -7,8 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Users, Calendar, Mail, Clock } from "lucide-react";
+import { Users, Calendar, Mail, Clock, Download } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -42,13 +43,51 @@ export function HRBookingsDialog({
 }: HRBookingsDialogProps) {
   const confirmedCount = bookings.filter((b) => b.status === "confirmed").length;
 
+  const exportCSV = () => {
+    const headers = ["Nome", "Cognome", "Email", "Stato", "Data Prenotazione"];
+    const rows = bookings.map((b) => [
+      b.user.first_name || "",
+      b.user.last_name || "",
+      b.user.email,
+      b.status === "confirmed" ? "Confermato" : "Cancellato",
+      format(new Date(b.created_at), "dd/MM/yyyy HH:mm"),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const safeTitle = experienceTitle.replace(/[^a-z0-9]/gi, "-").toLowerCase();
+    const dateStr = format(new Date(dateInfo.start_datetime), "yyyy-MM-dd");
+    link.href = url;
+    link.download = `prenotazioni_${safeTitle}_${dateStr}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-start justify-between gap-4">
           <DialogTitle className="text-lg font-semibold pr-6">
             Prenotazioni per {experienceTitle}
           </DialogTitle>
+          {bookings.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportCSV}
+              className="shrink-0 gap-1.5"
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Esporta CSV</span>
+            </Button>
+          )}
         </DialogHeader>
 
         {/* Date info */}

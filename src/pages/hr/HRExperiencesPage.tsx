@@ -5,7 +5,6 @@ import { HRLayout } from "@/components/layout/HRLayout";
 import { HRExperienceMetrics } from "@/components/hr/HRExperienceMetrics";
 import { HRExperienceFilters } from "@/components/hr/HRExperienceFilters";
 import { HRExperienceCard } from "@/components/hr/HRExperienceCard";
-import { BookingsTable } from "@/components/hr/BookingsTable";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { devLog } from "@/lib/logger";
@@ -290,43 +289,6 @@ export default function HRExperiencesPage() {
     };
   }, [experiences]);
 
-  // Flatten all bookings for the table
-  const allBookings = useMemo(() => {
-    const bookingsList: {
-      id: string;
-      status: string;
-      created_at: string;
-      volunteer_hours: number;
-      user: {
-        first_name: string | null;
-        last_name: string | null;
-        email: string;
-      };
-      experience_title: string;
-      start_datetime: string;
-    }[] = [];
-
-    experiences.forEach((exp) => {
-      exp.dates.forEach((date) => {
-        date.bookings.forEach((booking) => {
-          bookingsList.push({
-            id: booking.id,
-            status: booking.status,
-            created_at: booking.created_at,
-            volunteer_hours: date.volunteer_hours || 0,
-            user: booking.user,
-            experience_title: exp.title,
-            start_datetime: date.start_datetime,
-          });
-        });
-      });
-    });
-
-    // Sort by start_datetime descending (most recent first)
-    return bookingsList.sort(
-      (a, b) => new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime()
-    );
-  }, [experiences]);
 
   if (loading) {
     return (
@@ -458,8 +420,6 @@ export default function HRExperiencesPage() {
           )}
         </div>
 
-        {/* Bookings Table */}
-        <BookingsTable bookings={allBookings} />
       </div>
     </HRLayout>
   );
