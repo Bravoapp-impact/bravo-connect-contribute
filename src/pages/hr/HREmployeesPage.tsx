@@ -463,10 +463,10 @@ export default function HREmployeesPage() {
                               {employee.email}
                             </p>
                           </div>
-                          {employee.total_experiences === 0 && (
+                          {showOnlyNoParticipation && employee.total_experiences === 0 && (
                             <Badge
                               variant="outline"
-                              className="shrink-0 bg-warning/10 text-warning border-warning/20"
+                              className="shrink-0 bg-primary/10 text-primary border-primary/20"
                             >
                               Da coinvolgere
                             </Badge>
