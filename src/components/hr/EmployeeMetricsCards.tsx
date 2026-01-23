@@ -60,8 +60,8 @@ export function EmployeeMetricsCards({
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm h-full">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-start gap-3 sm:gap-4">
-              <div className="p-2.5 sm:p-3 rounded-xl bg-accent/10 shrink-0">
-                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+              <div className="p-2.5 sm:p-3 rounded-xl bg-bravo-orange/10 shrink-0">
+                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-bravo-orange" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xl sm:text-2xl font-bold text-foreground">
@@ -85,8 +85,8 @@ export function EmployeeMetricsCards({
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm h-full">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-start gap-3 sm:gap-4">
-              <div className="p-2.5 sm:p-3 rounded-xl bg-secondary/10 shrink-0">
-                <UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
+              <div className="p-2.5 sm:p-3 rounded-xl bg-bravo-purple/10 shrink-0">
+                <UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-bravo-purple" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xl sm:text-2xl font-bold text-foreground">
