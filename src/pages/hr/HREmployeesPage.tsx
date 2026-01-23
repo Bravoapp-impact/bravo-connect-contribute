@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EmployeeParticipationsDialog } from "@/components/hr/EmployeeParticipationsDialog";
 
 interface EmployeeStats {
   id: string;
@@ -53,6 +54,10 @@ export default function HREmployeesPage() {
   const [showOnlyNoParticipation, setShowOnlyNoParticipation] = useState(false);
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  // Dialog state
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeStats | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (profile?.company_id) {
@@ -223,6 +228,11 @@ export default function HREmployeesPage() {
       setSortField(field);
       setSortDirection("asc");
     }
+  };
+
+  const handleEmployeeClick = (employee: EmployeeStats) => {
+    setSelectedEmployee(employee);
+    setDialogOpen(true);
   };
 
   const exportCSV = () => {
@@ -449,7 +459,8 @@ export default function HREmployeesPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.02 }}
-                      className="border-b border-border/50 last:border-0"
+                      className="border-b border-border/50 last:border-0 cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleEmployeeClick(employee)}
                     >
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -494,6 +505,12 @@ export default function HREmployeesPage() {
             </Table>
           </div>
         </Card>
+
+        <EmployeeParticipationsDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          employee={selectedEmployee}
+        />
       </div>
     </HRLayout>
   );
