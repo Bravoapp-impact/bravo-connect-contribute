@@ -67,12 +67,12 @@ export default function HREmployeesPage() {
       setLoading(true);
       setError(null);
 
-      // Fetch all employees of the company
+      // Fetch all employees of the company (including hr_admin)
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, email")
+        .select("id, first_name, last_name, email, role")
         .eq("company_id", profile.company_id)
-        .eq("role", "employee");
+        .in("role", ["employee", "hr_admin"]);
 
       if (profilesError) throw profilesError;
 
