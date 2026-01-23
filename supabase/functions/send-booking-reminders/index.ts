@@ -9,17 +9,17 @@ const corsHeaders = {
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr);
   const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   };
-  return date.toLocaleDateString('it-IT', options);
+  return date.toLocaleDateString("it-IT", options);
 };
 
 const formatTime = (dateStr: string): string => {
   const date = new Date(dateStr);
-  return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
 };
 
 serve(async (req: Request): Promise<Response> => {
@@ -66,7 +66,8 @@ serve(async (req: Request): Promise<Response> => {
 
     const { data: upcomingDates, error: datesError } = await supabase
       .from("experience_dates")
-      .select(`
+      .select(
+        `
         id,
         start_datetime,
         end_datetime,
@@ -80,7 +81,8 @@ serve(async (req: Request): Promise<Response> => {
           association_name,
           category
         )
-      `)
+      `,
+      )
       .gte("start_datetime", now.toISOString())
       .lte("start_datetime", maxTime.toISOString());
 
@@ -164,8 +166,11 @@ serve(async (req: Request): Promise<Response> => {
 
         const experience = expDate.experiences as any;
         const subject = template?.subject || `Promemoria: ${experience?.title} - Domani!`;
-        const introText = template?.intro_text || `Ciao ${profile.first_name || ""},\n\nTi ricordiamo che domani hai un'esperienza di volontariato!`;
-        const closingText = template?.closing_text || "Non vediamo l'ora di vederti! Grazie per il tuo impegno.\n\nIl team Bravo!";
+        const introText =
+          template?.intro_text ||
+          `Ciao ${profile.first_name || ""},\n\nTi ricordiamo che domani hai un'esperienza di volontariato!`;
+        const closingText =
+          template?.closing_text || "Non vediamo l'ora di vederti! Grazie per il tuo impegno.\n\nIl team Bravo!";
 
         // Build email HTML
         const emailHtml = `
@@ -188,21 +193,25 @@ serve(async (req: Request): Promise<Response> => {
     <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; margin-bottom: 24px;">
       <h2 style="margin: 0 0 16px 0; color: #f97316; font-size: 20px;">${experience?.title}</h2>
       
-      ${experience?.category ? `<p style="margin: 0 0 12px 0;"><strong>Categoria:</strong> ${experience.category}</p>` : ''}
-      ${experience?.association_name ? `<p style="margin: 0 0 12px 0;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ''}
+      ${experience?.category ? `<p style="margin: 0 0 12px 0;"><strong>Categoria:</strong> ${experience.category}</p>` : ""}
+      ${experience?.association_name ? `<p style="margin: 0 0 12px 0;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ""}
       
       <div style="background: #fff7ed; padding: 16px; border-radius: 8px; margin: 16px 0; border: 2px solid #fed7aa;">
         <p style="margin: 0 0 8px 0;"><strong>📅 Data:</strong> ${formatDate(expDate.start_datetime)}</p>
         <p style="margin: 0;"><strong>🕐 Orario:</strong> ${formatTime(expDate.start_datetime)} - ${formatTime(expDate.end_datetime)}</p>
       </div>
       
-      ${experience?.city || experience?.address ? `
+      ${
+        experience?.city || experience?.address
+          ? `
       <div style="margin-top: 16px;">
         <p style="margin: 0;"><strong>📍 Luogo:</strong></p>
-        ${experience.city ? `<p style="margin: 4px 0 0 0;">${experience.city}</p>` : ''}
-        ${experience.address ? `<p style="margin: 4px 0 0 0; color: #666;">${experience.address}</p>` : ''}
+        ${experience.city ? `<p style="margin: 4px 0 0 0;">${experience.city}</p>` : ""}
+        ${experience.address ? `<p style="margin: 4px 0 0 0; color: #666;">${experience.address}</p>` : ""}
       </div>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
     
     <p style="white-space: pre-line; margin-bottom: 0;">${closingText}</p>
@@ -236,11 +245,11 @@ serve(async (req: Request): Promise<Response> => {
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${resendApiKey}`,
+            Authorization: `Bearer ${resendApiKey}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Bravo! <noreply@notifications.bravoapp.it>",
+            from: "Bravo! <hello@notifications.bravoapp.it>",
             to: [profile.email],
             subject: subject,
             html: emailHtml,
@@ -270,19 +279,18 @@ serve(async (req: Request): Promise<Response> => {
     console.log(`Reminder job complete. Sent: ${emailsSent}, Skipped: ${emailsSkipped}`);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         emails_sent: emailsSent,
         emails_skipped: emailsSkipped,
       }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-
   } catch (error: any) {
     console.error("Error in send-booking-reminders:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

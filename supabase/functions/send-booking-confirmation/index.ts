@@ -13,17 +13,17 @@ interface BookingConfirmationRequest {
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr);
   const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   };
-  return date.toLocaleDateString('it-IT', options);
+  return date.toLocaleDateString("it-IT", options);
 };
 
 const formatTime = (dateStr: string): string => {
   const date = new Date(dateStr);
-  return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
 };
 
 serve(async (req: Request): Promise<Response> => {
@@ -50,13 +50,15 @@ serve(async (req: Request): Promise<Response> => {
     // Fetch booking with all related data
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
-      .select(`
+      .select(
+        `
         id,
         user_id,
         experience_date_id,
         status,
         created_at
-      `)
+      `,
+      )
       .eq("id", booking_id)
       .single();
 
@@ -78,12 +80,14 @@ serve(async (req: Request): Promise<Response> => {
     // Get experience date details
     const { data: experienceDate, error: dateError } = await supabase
       .from("experience_dates")
-      .select(`
+      .select(
+        `
         id,
         start_datetime,
         end_datetime,
         experience_id
-      `)
+      `,
+      )
       .eq("id", booking.experience_date_id)
       .single();
 
@@ -111,10 +115,10 @@ serve(async (req: Request): Promise<Response> => {
 
     if (emailSettings && !emailSettings.confirmation_enabled) {
       console.log("Confirmation emails disabled for this company");
-      return new Response(
-        JSON.stringify({ success: true, message: "Confirmation emails disabled" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ success: true, message: "Confirmation emails disabled" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Get email template for the company
@@ -127,8 +131,11 @@ serve(async (req: Request): Promise<Response> => {
 
     // Default values if no template exists
     const subject = template?.subject || `Conferma prenotazione: ${experience.title}`;
-    const introText = template?.intro_text || `Ciao ${profile.first_name || ""},\n\nLa tua prenotazione è stata confermata con successo!`;
-    const closingText = template?.closing_text || "Ti aspettiamo! Grazie per il tuo impegno nel volontariato.\n\nIl team Bravo!";
+    const introText =
+      template?.intro_text ||
+      `Ciao ${profile.first_name || ""},\n\nLa tua prenotazione è stata confermata con successo!`;
+    const closingText =
+      template?.closing_text || "Ti aspettiamo! Grazie per il tuo impegno nel volontariato.\n\nIl team Bravo!";
 
     // Build email HTML
     const emailHtml = `
@@ -151,27 +158,35 @@ serve(async (req: Request): Promise<Response> => {
     <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; margin-bottom: 24px;">
       <h2 style="margin: 0 0 16px 0; color: #7c3aed; font-size: 20px;">${experience.title}</h2>
       
-      ${experience.category ? `<p style="margin: 0 0 12px 0;"><strong>Categoria:</strong> ${experience.category}</p>` : ''}
-      ${experience.association_name ? `<p style="margin: 0 0 12px 0;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ''}
+      ${experience.category ? `<p style="margin: 0 0 12px 0;"><strong>Categoria:</strong> ${experience.category}</p>` : ""}
+      ${experience.association_name ? `<p style="margin: 0 0 12px 0;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ""}
       
       <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin: 16px 0;">
         <p style="margin: 0 0 8px 0;"><strong>📅 Data:</strong> ${formatDate(experienceDate.start_datetime)}</p>
         <p style="margin: 0;"><strong>🕐 Orario:</strong> ${formatTime(experienceDate.start_datetime)} - ${formatTime(experienceDate.end_datetime)}</p>
       </div>
       
-      ${experience.city || experience.address ? `
+      ${
+        experience.city || experience.address
+          ? `
       <div style="margin-top: 16px;">
         <p style="margin: 0;"><strong>📍 Luogo:</strong></p>
-        ${experience.city ? `<p style="margin: 4px 0 0 0;">${experience.city}</p>` : ''}
-        ${experience.address ? `<p style="margin: 4px 0 0 0; color: #666;">${experience.address}</p>` : ''}
+        ${experience.city ? `<p style="margin: 4px 0 0 0;">${experience.city}</p>` : ""}
+        ${experience.address ? `<p style="margin: 4px 0 0 0; color: #666;">${experience.address}</p>` : ""}
       </div>
-      ` : ''}
+      `
+          : ""
+      }
       
-      ${experience.description ? `
+      ${
+        experience.description
+          ? `
       <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
         <p style="margin: 0; color: #666;">${experience.description}</p>
       </div>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
     
     <p style="white-space: pre-line; margin-bottom: 0;">${closingText}</p>
@@ -191,7 +206,7 @@ serve(async (req: Request): Promise<Response> => {
       console.log("RESEND_API_KEY not configured, logging email instead");
       console.log("Would send email to:", profile.email);
       console.log("Subject:", subject);
-      
+
       // Log the email attempt
       await supabase.from("email_logs").insert({
         booking_id: booking_id,
@@ -200,12 +215,12 @@ serve(async (req: Request): Promise<Response> => {
       });
 
       return new Response(
-        JSON.stringify({ 
-          success: true, 
+        JSON.stringify({
+          success: true,
           message: "Email simulated (RESEND_API_KEY not configured)",
-          to: profile.email 
+          to: profile.email,
         }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -213,11 +228,11 @@ serve(async (req: Request): Promise<Response> => {
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
+        Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Bravo! <noreply@notifications.bravoapp.it>",
+        from: "Bravo! <hello@notifications.bravoapp.it>",
         to: [profile.email],
         subject: subject,
         html: emailHtml,
@@ -228,7 +243,7 @@ serve(async (req: Request): Promise<Response> => {
 
     if (!emailResponse.ok) {
       console.error("Resend error:", emailResult);
-      throw new Error(`Failed to send email: ${emailResult.message || 'Unknown error'}`);
+      throw new Error(`Failed to send email: ${emailResult.message || "Unknown error"}`);
     }
 
     console.log("Email sent successfully:", emailResult);
@@ -240,16 +255,15 @@ serve(async (req: Request): Promise<Response> => {
       status: "sent",
     });
 
-    return new Response(
-      JSON.stringify({ success: true, message: "Confirmation email sent", id: emailResult.id }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-
+    return new Response(JSON.stringify({ success: true, message: "Confirmation email sent", id: emailResult.id }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: any) {
     console.error("Error in send-booking-confirmation:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
