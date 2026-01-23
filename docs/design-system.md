@@ -58,6 +58,37 @@ Guida completa al design system di Bravo!, ispirato allo stile pulito e minimali
 
 ---
 
+## 🎯 Colori Icone per Metriche
+
+Le icone nelle card metriche usano colori **tematici** per identificare visivamente il tipo di dato.
+
+**IMPORTANTE**: Non usare `text-accent` o `text-secondary` per le icone (sono grigi per gli hover states).
+
+| Metrica | Icona | Colore | Background |
+|---------|-------|--------|------------|
+| Dipendenti / Persone | `Users`, `UserCheck` | `text-bravo-purple` | `bg-bravo-purple/10` |
+| Esperienze / Eventi | `Calendar`, `Award` | `text-bravo-purple` | `bg-bravo-purple/10` |
+| Tempo / Ore | `Clock` | `text-bravo-orange` | `bg-bravo-orange/10` |
+| Beneficiari / Cuore | `Heart`, `Users` (beneficiari) | `text-bravo-pink` | `bg-bravo-pink/10` |
+| Trend / Crescita | `TrendingUp` | `text-success` | `bg-success/10` |
+| Partecipazioni | `CheckCircle`, `CalendarCheck` | `text-bravo-purple` | `bg-bravo-purple/10` |
+
+### Pattern per Card Metriche
+
+```tsx
+// ✅ Corretto - colori tematici
+<div className="p-2.5 sm:p-3 rounded-xl bg-bravo-orange/10">
+  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-bravo-orange" />
+</div>
+
+// ❌ Non fare - accent/secondary sono grigi
+<div className="p-2.5 sm:p-3 rounded-xl bg-accent/10">
+  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+</div>
+```
+
+---
+
 ## ✏️ Tipografia
 
 ### Font Family

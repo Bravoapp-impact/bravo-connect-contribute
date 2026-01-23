@@ -143,8 +143,8 @@ export default function Impact() {
             <Card className="border">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-muted">
-                    <Award className="h-5 w-5 text-primary" />
+                  <div className="p-2 rounded-full bg-bravo-purple/10">
+                    <Award className="h-5 w-5 text-bravo-purple" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground">
@@ -165,8 +165,8 @@ export default function Impact() {
             <Card className="border">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-muted">
-                    <Clock className="h-5 w-5 text-foreground" />
+                  <div className="p-2 rounded-full bg-bravo-orange/10">
+                    <Clock className="h-5 w-5 text-bravo-orange" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground">
@@ -187,8 +187,8 @@ export default function Impact() {
             <Card className="border">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-muted">
-                    <Users className="h-5 w-5 text-foreground" />
+                  <div className="p-2 rounded-full bg-bravo-pink/10">
+                    <Users className="h-5 w-5 text-bravo-pink" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground">
@@ -209,8 +209,8 @@ export default function Impact() {
             <Card className="border">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-muted">
-                    <TrendingUp className="h-5 w-5 text-foreground" />
+                  <div className="p-2 rounded-full bg-success/10">
+                    <TrendingUp className="h-5 w-5 text-success" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground">
