@@ -1,6 +1,5 @@
-import { motion } from "framer-motion";
 import { Users, Clock, Heart, CheckCircle, TrendingUp } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { MetricCard } from "@/components/common/MetricCard";
 
 interface MetricsCardsProps {
   employeesCount: number;
@@ -55,46 +54,36 @@ export function MetricsCards({
     },
   ];
 
-  // Split metrics: first 3 on top row, last 2 on bottom row (centered)
   const topRow = metrics.slice(0, 3);
   const bottomRow = metrics.slice(3);
 
-  const renderCard = (metric: typeof metrics[0], index: number, rowOffset: number = 0) => (
-    <motion.div
-      key={metric.label}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: (rowOffset + index) * 0.1 }}
-    >
-      <Card className="border-border/50 bg-card/80 backdrop-blur-sm hover:shadow-md transition-shadow h-full">
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className={`p-2.5 sm:p-3 rounded-xl ${metric.bgColor} shrink-0`}>
-              <metric.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${metric.color}`} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xl sm:text-2xl font-bold text-foreground">
-                {metric.value}
-              </p>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-tight">
-                {metric.label}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Top row: 3 cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        {topRow.map((metric, index) => renderCard(metric, index))}
+        {topRow.map((metric, index) => (
+          <MetricCard
+            key={metric.label}
+            label={metric.label}
+            value={metric.value}
+            icon={metric.icon}
+            iconColor={metric.color}
+            iconBgColor={metric.bgColor}
+            animationDelay={index * 0.1}
+          />
+        ))}
       </div>
-      {/* Bottom row: 2 cards full-width */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        {bottomRow.map((metric, index) => renderCard(metric, index, 3))}
+        {bottomRow.map((metric, index) => (
+          <MetricCard
+            key={metric.label}
+            label={metric.label}
+            value={metric.value}
+            icon={metric.icon}
+            iconColor={metric.color}
+            iconBgColor={metric.bgColor}
+            animationDelay={(3 + index) * 0.1}
+          />
+        ))}
       </div>
     </div>
   );

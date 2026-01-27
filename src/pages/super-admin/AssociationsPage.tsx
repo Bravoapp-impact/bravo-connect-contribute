@@ -60,6 +60,8 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { devLog } from "@/lib/logger";
 import { LogoUpload } from "@/components/super-admin/LogoUpload";
+import { PageHeader } from "@/components/common/PageHeader";
+import { EmptyState } from "@/components/common/EmptyState";
 
 interface City {
   id: string;
@@ -356,23 +358,16 @@ export default function AssociationsPage() {
   return (
     <SuperAdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        >
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Associazioni</h1>
-            <p className="text-muted-foreground">
-              Gestisci i partner del volontariato
-            </p>
-          </div>
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nuova Associazione
-          </Button>
-        </motion.div>
+        <PageHeader
+          title="Associazioni"
+          description="Gestisci i partner del volontariato"
+          actions={
+            <Button onClick={() => handleOpenDialog()} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nuova Associazione
+            </Button>
+          }
+        />
 
         {/* Table */}
         <motion.div
@@ -434,11 +429,12 @@ export default function AssociationsPage() {
                       </TableRow>
                     ) : filteredAssociations.length === 0 ? (
                       <TableRow>
-                        <TableCell
-                          colSpan={6}
-                          className="text-center py-8 text-muted-foreground"
-                        >
-                          Nessuna associazione trovata
+                        <TableCell colSpan={6}>
+                          <EmptyState
+                            icon={Building}
+                            title="Nessuna associazione trovata"
+                            description="Non ci sono associazioni che corrispondono ai filtri."
+                          />
                         </TableCell>
                       </TableRow>
                     ) : (

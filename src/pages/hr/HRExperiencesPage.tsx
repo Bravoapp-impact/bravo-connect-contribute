@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Calendar, AlertCircle } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { HRLayout } from "@/components/layout/HRLayout";
 import { HRExperienceMetrics } from "@/components/hr/HRExperienceMetrics";
 import { HRExperienceFilters } from "@/components/hr/HRExperienceFilters";
@@ -9,6 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { devLog } from "@/lib/logger";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/PageHeader";
+import { LoadingState } from "@/components/common/LoadingState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 interface ExperienceDate {
   id: string;
@@ -293,12 +296,7 @@ export default function HRExperiencesPage() {
   if (loading) {
     return (
       <HRLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Caricamento esperienze...</p>
-          </div>
-        </div>
+        <LoadingState message="Caricamento esperienze..." />
       </HRLayout>
     );
   }
@@ -306,17 +304,12 @@ export default function HRExperiencesPage() {
   if (error) {
     return (
       <HRLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Card className="max-w-md">
-            <CardContent className="pt-6 text-center">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-foreground mb-2">
-                Errore di caricamento
-              </h2>
-              <p className="text-muted-foreground">{error}</p>
-            </CardContent>
-          </Card>
-        </div>
+        <EmptyState
+          icon={Calendar}
+          title="Errore di caricamento"
+          description={error}
+          className="min-h-[60vh]"
+        />
       </HRLayout>
     );
   }
@@ -325,32 +318,17 @@ export default function HRExperiencesPage() {
   if (experiences.length === 0) {
     return (
       <HRLayout>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Esperienze</h1>
-            <p className="text-muted-foreground mt-1">
-              Esperienze assegnate alla tua azienda
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-              <Calendar className="h-10 w-10 text-primary" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Nessuna esperienza assegnata
-            </h2>
-            <p className="text-muted-foreground max-w-md mb-4">
-              La tua azienda non ha ancora esperienze di volontariato assegnate.
-              Contatta il Super Admin per richiedere l'assegnazione di nuove
-              esperienze.
-            </p>
-          </div>
-        </motion.div>
+        <div className="space-y-6">
+          <PageHeader
+            title="Esperienze"
+            description="Esperienze assegnate alla tua azienda"
+          />
+          <EmptyState
+            icon={Calendar}
+            title="Nessuna esperienza assegnata"
+            description="La tua azienda non ha ancora esperienze di volontariato assegnate. Contatta il Super Admin per richiedere l'assegnazione di nuove esperienze."
+          />
+        </div>
       </HRLayout>
     );
   }
@@ -358,16 +336,10 @@ export default function HRExperiencesPage() {
   return (
     <HRLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-bold text-foreground">Esperienze</h1>
-          <p className="text-muted-foreground mt-1">
-            Monitora le esperienze e le partecipazioni dei dipendenti
-          </p>
-        </motion.div>
+        <PageHeader
+          title="Esperienze"
+          description="Monitora le esperienze e le partecipazioni dei dipendenti"
+        />
 
         {/* Metrics */}
         <HRExperienceMetrics

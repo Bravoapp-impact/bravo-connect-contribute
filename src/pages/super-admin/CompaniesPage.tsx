@@ -39,6 +39,8 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { devLog } from "@/lib/logger";
 import { LogoUpload } from "@/components/super-admin/LogoUpload";
+import { PageHeader } from "@/components/common/PageHeader";
+import { EmptyState } from "@/components/common/EmptyState";
 
 interface Company {
   id: string;
@@ -232,23 +234,16 @@ export default function CompaniesPage() {
   return (
     <SuperAdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        >
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Aziende</h1>
-            <p className="text-muted-foreground">
-              Gestisci le aziende clienti della piattaforma
-            </p>
-          </div>
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nuova Azienda
-          </Button>
-        </motion.div>
+        <PageHeader
+          title="Aziende"
+          description="Gestisci le aziende clienti della piattaforma"
+          actions={
+            <Button onClick={() => handleOpenDialog()} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nuova Azienda
+            </Button>
+          }
+        />
 
         {/* Table */}
         <motion.div
@@ -292,11 +287,12 @@ export default function CompaniesPage() {
                       </TableRow>
                     ) : filteredCompanies.length === 0 ? (
                       <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          className="text-center py-8 text-muted-foreground"
-                        >
-                          Nessuna azienda trovata
+                        <TableCell colSpan={5}>
+                          <EmptyState
+                            icon={Building2}
+                            title="Nessuna azienda trovata"
+                            description="Non ci sono aziende che corrispondono alla ricerca."
+                          />
                         </TableCell>
                       </TableRow>
                     ) : (

@@ -46,6 +46,8 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { devLog } from "@/lib/logger";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/common/PageHeader";
+import { EmptyState } from "@/components/common/EmptyState";
 
 interface Profile {
   id: string;
@@ -390,16 +392,10 @@ export default function UsersPage() {
   return (
     <SuperAdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-bold tracking-tight">Utenti</h1>
-          <p className="text-muted-foreground">
-            Gestisci tutti gli utenti registrati sulla piattaforma
-          </p>
-        </motion.div>
+        <PageHeader
+          title="Utenti"
+          description="Gestisci tutti gli utenti registrati sulla piattaforma"
+        />
 
         {/* Table */}
         <motion.div
@@ -474,11 +470,12 @@ export default function UsersPage() {
                       </TableRow>
                     ) : filteredUsers.length === 0 ? (
                       <TableRow>
-                        <TableCell
-                          colSpan={6}
-                          className="text-center py-8 text-muted-foreground"
-                        >
-                          Nessun utente trovato
+                        <TableCell colSpan={6}>
+                          <EmptyState
+                            icon={User}
+                            title="Nessun utente trovato"
+                            description="Non ci sono utenti che corrispondono ai filtri."
+                          />
                         </TableCell>
                       </TableRow>
                     ) : (
