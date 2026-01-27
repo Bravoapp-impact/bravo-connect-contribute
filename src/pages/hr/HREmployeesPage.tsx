@@ -3,12 +3,10 @@ import { motion } from "framer-motion";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { it } from "date-fns/locale";
 import {
-  Loader2,
   Users,
   Search,
   Download,
   ArrowUpDown,
-  AlertCircle,
   ChevronRight,
 } from "lucide-react";
 import { HRLayout } from "@/components/layout/HRLayout";
@@ -32,6 +30,9 @@ import {
 import { EmployeeParticipationsDialog } from "@/components/hr/EmployeeParticipationsDialog";
 import { EmployeeMetricsCards } from "@/components/hr/EmployeeMetricsCards";
 import { TopPerformersTable } from "@/components/hr/TopPerformersTable";
+import { PageHeader } from "@/components/common/PageHeader";
+import { LoadingState } from "@/components/common/LoadingState";
+import { EmptyState } from "@/components/common/EmptyState";
 
 interface EmployeeStats {
   id: string;
@@ -308,12 +309,7 @@ export default function HREmployeesPage() {
   if (loading) {
     return (
       <HRLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Caricamento dipendenti...</p>
-          </div>
-        </div>
+        <LoadingState message="Caricamento dipendenti..." />
       </HRLayout>
     );
   }
@@ -321,17 +317,12 @@ export default function HREmployeesPage() {
   if (error) {
     return (
       <HRLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Card className="max-w-md">
-            <CardContent className="pt-6 text-center">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-foreground mb-2">
-                Errore di caricamento
-              </h2>
-              <p className="text-muted-foreground">{error}</p>
-            </CardContent>
-          </Card>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="Errore di caricamento"
+          description={error}
+          className="min-h-[60vh]"
+        />
       </HRLayout>
     );
   }
@@ -340,31 +331,17 @@ export default function HREmployeesPage() {
   if (employees.length === 0) {
     return (
       <HRLayout>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Dipendenti</h1>
-            <p className="text-muted-foreground mt-1">
-              Monitora la partecipazione dei dipendenti
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-              <Users className="h-10 w-10 text-primary" />
-            </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Nessun dipendente registrato
-            </h2>
-            <p className="text-muted-foreground max-w-md">
-              Non ci sono ancora dipendenti registrati per la tua azienda.
-              I dipendenti appariranno qui dopo la registrazione con il codice aziendale.
-            </p>
-          </div>
-        </motion.div>
+        <div className="space-y-6">
+          <PageHeader
+            title="Dipendenti"
+            description="Monitora la partecipazione dei dipendenti"
+          />
+          <EmptyState
+            icon={Users}
+            title="Nessun dipendente registrato"
+            description="Non ci sono ancora dipendenti registrati per la tua azienda. I dipendenti appariranno qui dopo la registrazione con il codice aziendale."
+          />
+        </div>
       </HRLayout>
     );
   }
@@ -372,19 +349,10 @@ export default function HREmployeesPage() {
   return (
     <HRLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-bold text-foreground">Dipendenti</h1>
-          <p className="text-muted-foreground mt-1">
-            {employees.length} dipendent{employees.length === 1 ? "e" : "i"} registrat{employees.length === 1 ? "o" : "i"}
-            {noParticipationCount > 0 && (
-              <span className="text-warning"> • {noParticipationCount} da coinvolgere</span>
-            )}
-          </p>
-        </motion.div>
+        <PageHeader
+          title="Dipendenti"
+          description={`${employees.length} dipendent${employees.length === 1 ? "e" : "i"} registrat${employees.length === 1 ? "o" : "i"}${noParticipationCount > 0 ? ` • ${noParticipationCount} da coinvolgere` : ""}`}
+        />
 
         {/* Metrics Cards */}
         <EmployeeMetricsCards employees={employees} monthlyTrend={monthlyTrend} />
