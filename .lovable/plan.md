@@ -1,262 +1,319 @@
 
-# Panoramica Completa: Refactoring per Componenti Riutilizzabili
 
-## Analisi della Duplicazione di Codice
+# Piano: Implementazione CRUD Table Pattern (Approccio Ibrido)
 
-Dopo aver esaminato l'intera codebase, ho identificato **7 aree principali** dove esistono pattern duplicati che possono essere consolidati in componenti riutilizzabili.
+## Obiettivo
+
+Creare un set di componenti riutilizzabili e un hook che:
+- Riducano il boilerplate nelle pagine CRUD (~150-200 righe/pagina)
+- Mantengano piena flessibilita per casi complessi
+- Non rompano le pagine esistenti (refactoring opzionale)
+- Permettano di aggiungere nuovi componenti in futuro
 
 ---
 
-## 1. Profile Edit Form (Priorita ALTA)
-
-### Duplicazione Trovata
-Quattro file condividono circa l'80% dello stesso codice:
-- `src/pages/Profile.tsx` (Employee)
-- `src/pages/super-admin/SuperAdminProfile.tsx`
-- `src/pages/hr/HRProfile.tsx`
-- `src/pages/association/AssociationAdminProfile.tsx`
-
-### Codice Duplicato
-- Schema Zod identico per validazione nome/cognome
-- Stesso stato React (firstName, lastName, saving, errors)
-- Stessa logica `handleSave` per aggiornamento profilo
-- Stesso form UI con Input per nome/cognome
-- Stesso bottone "Salva modifiche" con stato loading
-
-### Soluzione Proposta
-Creare `ProfileEditForm.tsx`:
+## Struttura File da Creare
 
 ```text
-src/components/profile/ProfileEditForm.tsx
-Props:
-  - profile: Profile
-  - onSave: () => void
-  - cardClassName?: string (per stili admin vs employee)
+src/hooks/
+  useCrudState.ts          <- Hook per stato e operazioni CRUD
+
+src/components/crud/
+  index.ts                 <- Export centralizzato
+  DeleteConfirmDialog.tsx  <- Dialog eliminazione universale
+  CrudTableCard.tsx        <- Card wrapper con header e search
+  CrudTableActions.tsx     <- Bottoni Edit/Delete standardizzati
+  CrudTableRow.tsx         <- Row wrapper con animazione
+  CrudSearchBar.tsx        <- Barra ricerca con icona
+  TableEmptyRow.tsx        <- Empty state per tabelle
+  TableLoadingRow.tsx      <- Loading state per tabelle
 ```
 
-### Riduzione Stimata
-~120 righe di codice per file = ~360 righe totali risparmiate
-
 ---
 
-## 2. Admin Layout Parametrizzato (Priorita MEDIA-ALTA)
+## Fase 1: Componenti Base (Quick Wins)
 
-### Duplicazione Trovata
-Tre layout condividono il 90% della struttura:
-- `src/components/layout/SuperAdminLayout.tsx` (256 righe)
-- `src/components/layout/HRLayout.tsx` (246 righe)
-- `src/components/layout/AssociationLayout.tsx` (224 righe)
+### 1.1 DeleteConfirmDialog
 
-### Codice Duplicato
-- Struttura sidebar identica (mobile overlay, scroll area, user section)
-- Logica `isActive()` per evidenziare route corrente
-- User dropdown con avatar, profilo link e logout
-- Mobile header con hamburger menu
-- Funzione `getInitials()` identica
-
-### Soluzione Proposta
-Creare `AdminLayout.tsx` parametrizzato:
+Dialog di conferma eliminazione, identico in tutte le 6 pagine CRUD.
 
 ```text
-src/components/layout/AdminLayout.tsx
 Props:
-  - sidebarItems: { label, icon, href }[]
-  - badgeLabel: string (es. "Super Admin", "HR Admin")
-  - profilePath: string (es. "/super-admin/profile")
-  - basePath: string (es. "/super-admin")
-  - showCompanyLogo?: boolean
-  - showAssociationBadge?: boolean
+  - open: boolean
+  - onOpenChange: (open: boolean) => void
+  - onConfirm: () => void
+  - title?: string           // default: "Eliminare questo elemento?"
+  - description?: string     // default: "Questa azione non puo essere annullata..."
+  - entityName?: string      // es. "citta" - usato nel messaggio
+  - entityLabel?: string     // es. "Milano" - nome specifico
+  - confirmLabel?: string    // default: "Elimina"
+  - cancelLabel?: string     // default: "Annulla"
+```
+
+Riduzione: ~25 righe per pagina
+
+### 1.2 CrudTableActions
+
+Bottoni Edit/Delete standardizzati per le celle azioni.
+
+```text
+Props:
+  - onEdit?: () => void
+  - onDelete?: () => void
+  - showEdit?: boolean       // default: true
+  - showDelete?: boolean     // default: true
+  - size?: "sm" | "default"  // default: "sm" (h-8 w-8)
+  - className?: string
+```
+
+Riduzione: ~20 righe per pagina
+
+### 1.3 CrudTableRow
+
+Wrapper per motion.tr con animazione standard.
+
+```text
+Props:
+  - index: number            // per calcolo delay animazione
   - children: ReactNode
+  - className?: string
 ```
 
-I tre layout esistenti diventerebbero wrapper sottili:
+Riduzione: ~5 righe per riga (moltiplicato per numero righe)
+
+---
+
+## Fase 2: Componenti Strutturali
+
+### 2.1 CrudSearchBar
+
+Barra ricerca con icona Search integrata.
 
 ```text
-// SuperAdminLayout.tsx
-export function SuperAdminLayout({ children }) {
+Props:
+  - value: string
+  - onChange: (value: string) => void
+  - placeholder?: string     // default: "Cerca..."
+  - className?: string
+```
+
+### 2.2 CrudTableCard
+
+Card wrapper con header, conteggio, search e slot per filtri.
+
+```text
+Props:
+  - title: string            // es. "12 Citta"
+  - searchValue: string
+  - onSearchChange: (v: string) => void
+  - searchPlaceholder?: string
+  - filters?: ReactNode      // slot per Select aggiuntivi
+  - actions?: ReactNode      // slot per bottoni header
+  - children: ReactNode      // la Table
+  - className?: string
+```
+
+Riduzione: ~35 righe per pagina
+
+### 2.3 TableEmptyRow
+
+Empty state specifico per tabelle (usa EmptyState internamente).
+
+```text
+Props:
+  - colSpan: number
+  - icon?: LucideIcon
+  - message?: string         // default: "Nessun elemento trovato"
+  - description?: string
+```
+
+### 2.4 TableLoadingRow
+
+Loading state specifico per tabelle.
+
+```text
+Props:
+  - colSpan: number
+  - message?: string         // default: "Caricamento..."
+```
+
+---
+
+## Fase 3: Hook useCrudState
+
+Hook generico per stato e operazioni CRUD.
+
+```text
+useCrudState<T>({
+  tableName: string,
+  orderBy?: { column: string, ascending?: boolean },
+  searchFields?: (keyof T)[],
+  fetchOnMount?: boolean,    // default: true
+})
+
+Restituisce:
+  items: T[]
+  loading: boolean
+  searchTerm: string
+  setSearchTerm: (v: string) => void
+  selectedItem: T | null
+  setSelectedItem: (item: T | null) => void
+  dialogOpen: boolean
+  setDialogOpen: (open: boolean) => void
+  deleteDialogOpen: boolean
+  setDeleteDialogOpen: (open: boolean) => void
+  saving: boolean
+  fetchItems: () => Promise<void>
+  handleSave: (payload: Partial<T>, onSuccess?: () => void) => Promise<void>
+  handleDelete: (onSuccess?: () => void) => Promise<void>
+  filteredItems: T[]
+```
+
+Riduzione: ~60-80 righe per pagina
+
+---
+
+## Piano di Migrazione
+
+### Pagine da Refactorare (in ordine di complessita)
+
+| Pagina | Righe Attuali | Complessita | Ordine |
+|--------|---------------|-------------|--------|
+| CitiesPage | 400 | Bassa | 1 |
+| CategoriesPage | 450 | Bassa | 2 |
+| CompaniesPage | ~500 | Media | 3 |
+| AssociationsPage | ~700 | Media | 4 |
+| UsersPage | ~600 | Media | 5 |
+| AccessCodesPage | 870 | Alta | 6 (opzionale) |
+
+### Strategia
+
+1. Creare tutti i componenti CRUD
+2. Refactorare CitiesPage come proof-of-concept
+3. Se funziona, procedere con le altre pagine
+4. AccessCodesPage puo rimanere com'e (troppo custom) o usare solo alcuni componenti
+
+---
+
+## Esempio: CitiesPage Refactored
+
+```text
+// Da ~400 righe a ~180 righe
+
+export default function CitiesPage() {
+  const {
+    items: cities,
+    loading,
+    searchTerm, setSearchTerm,
+    selectedItem, setSelectedItem,
+    dialogOpen, setDialogOpen,
+    deleteDialogOpen, setDeleteDialogOpen,
+    saving,
+    handleSave,
+    handleDelete,
+    filteredItems,
+  } = useCrudState<City>({
+    tableName: "cities",
+    orderBy: { column: "name" },
+    searchFields: ["name", "province", "region"],
+  });
+
+  const [formData, setFormData] = useState({ name: "", province: "", region: "" });
+
+  const handleOpenDialog = (city?: City) => {
+    // ... logica form (resta custom)
+  };
+
   return (
-    <AdminLayout
-      sidebarItems={superAdminItems}
-      badgeLabel="Super Admin"
-      profilePath="/super-admin/profile"
-      basePath="/super-admin"
-    >
-      {children}
-    </AdminLayout>
+    <SuperAdminLayout>
+      <PageHeader
+        title="Citta"
+        description="Gestisci le citta dove operiamo"
+        actions={<Button onClick={() => handleOpenDialog()}>Nuova Citta</Button>}
+      />
+
+      <CrudTableCard
+        title={`${cities.length} Citta`}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+      >
+        <Table>
+          <TableHeader>...</TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableLoadingRow colSpan={4} />
+            ) : filteredItems.length === 0 ? (
+              <TableEmptyRow colSpan={4} icon={MapPin} message="Nessuna citta trovata" />
+            ) : (
+              filteredItems.map((city, index) => (
+                <CrudTableRow key={city.id} index={index}>
+                  <TableCell>...</TableCell>
+                  <TableCell>
+                    <CrudTableActions
+                      onEdit={() => handleOpenDialog(city)}
+                      onDelete={() => {
+                        setSelectedItem(city);
+                        setDeleteDialogOpen(true);
+                      }}
+                    />
+                  </TableCell>
+                </CrudTableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CrudTableCard>
+
+      {/* Dialog form - resta custom */}
+      <Dialog>...</Dialog>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        entityName="citta"
+        entityLabel={selectedItem?.name}
+      />
+    </SuperAdminLayout>
   );
 }
 ```
 
-### Riduzione Stimata
-~500 righe consolidate in ~300 righe = ~200 righe risparmiate
+---
+
+## Estensibilita Futura
+
+L'architettura permette di aggiungere facilmente:
+
+| Componente Futuro | Come si integra |
+|-------------------|-----------------|
+| BulkSelectCheckbox | Nuovo componente, usato in TableCell |
+| BulkActionsBar | Slot in CrudTableCard |
+| ExportButton | Slot `actions` in CrudTableCard |
+| InlineEditCell | Sostituisce TableCell standard |
+| ColumnSorter | Nuovo componente in TableHead |
+| Pagination | Nuovo componente sotto Table |
 
 ---
 
-## 3. Page Header Component (Priorita MEDIA)
+## Riepilogo Implementazione
 
-### Duplicazione Trovata
-Ogni pagina admin ripete lo stesso pattern header:
+| Fase | Componenti | Righe Salvate | Tempo Stimato |
+|------|------------|---------------|---------------|
+| 1 | DeleteConfirmDialog, CrudTableActions, CrudTableRow | ~50/pagina | Veloce |
+| 2 | CrudTableCard, CrudSearchBar, TableEmptyRow, TableLoadingRow | ~45/pagina | Veloce |
+| 3 | useCrudState hook | ~70/pagina | Medio |
+| Refactor | Migrazione pagine | - | Incrementale |
 
-```text
-<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Titolo</h1>
-  <p className="text-muted-foreground mt-1">Descrizione</p>
-</motion.div>
-```
-
-Trovato in: SuperAdminDashboard, HRDashboard, AssociationDashboard, CompaniesPage, UsersPage, AssociationsPage, Profile pages, etc.
-
-### Soluzione Proposta
-Creare `PageHeader.tsx`:
-
-```text
-src/components/common/PageHeader.tsx
-Props:
-  - title: string
-  - description?: string
-  - actions?: ReactNode (bottoni come "Nuova Azienda")
-```
-
----
-
-## 4. Metric Card Component (Priorita MEDIA)
-
-### Duplicazione Trovata
-Pattern identico in:
-- `src/pages/super-admin/SuperAdminDashboard.tsx` (statCards array)
-- `src/components/hr/MetricsCards.tsx`
-
-### Pattern Comune
-- Card con icona, valore numerico, label
-- Animazione Framer Motion con delay progressivo
-- Stili `bg-card/80 backdrop-blur-sm`
-- Icona con colore e background personalizzati
-
-### Soluzione Proposta
-Creare `MetricCard.tsx`:
-
-```text
-src/components/common/MetricCard.tsx
-Props:
-  - label: string
-  - value: string | number
-  - icon: LucideIcon
-  - iconColor: string
-  - iconBgColor: string
-  - subLabel?: string
-  - animationDelay?: number
-```
-
----
-
-## 5. Empty State Component (Priorita MEDIA)
-
-### Duplicazione Trovata
-Pattern ripetuto in:
-- `Experiences.tsx`: "Nessuna esperienza trovata"
-- `AssociationDashboard.tsx`: "Nessuna data in programma" con CalendarX icon
-- Tabelle CRUD: "Nessuna azienda/utente/associazione trovata"
-
-### Soluzione Proposta
-Creare `EmptyState.tsx`:
-
-```text
-src/components/common/EmptyState.tsx
-Props:
-  - icon?: LucideIcon | string (emoji)
-  - title: string
-  - description?: string
-  - action?: ReactNode (bottone opzionale)
-```
-
----
-
-## 6. Loading State Component (Priorita BASSA)
-
-### Duplicazione Trovata
-Pattern identico in almeno 10 file:
-
-```text
-<div className="flex items-center justify-center min-h-[60vh]">
-  <div className="flex flex-col items-center gap-4">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    <p className="text-muted-foreground">Caricamento...</p>
-  </div>
-</div>
-```
-
-### Soluzione Proposta
-Creare `LoadingState.tsx`:
-
-```text
-src/components/common/LoadingState.tsx
-Props:
-  - message?: string (default: "Caricamento...")
-  - fullHeight?: boolean
-```
-
----
-
-## 7. CRUD Table Pattern (Priorita BASSA - Complesso)
-
-### Duplicazione Trovata
-Pagine con pattern CRUD simile:
-- `CompaniesPage.tsx`
-- `UsersPage.tsx`
-- `AssociationsPage.tsx`
-- `CitiesPage.tsx`
-- `CategoriesPage.tsx`
-
-### Pattern Comune
-- Card con titolo "N Entita"
-- Barra ricerca con icona Search
-- Filtri Select opzionali
-- Tabella con TableHeader, TableBody
-- Dialog per Create/Edit
-- AlertDialog per Delete confirmation
-
-### Valutazione
-Questa e' la duplicazione piu' complessa da astrarre perche' ogni tabella ha colonne e campi form diversi. Richiede un approccio piu' sofisticato (es. composable patterns o generics).
-
-**Consiglio**: Rimandare a fase successiva e concentrarsi prima sui componenti 1-6.
-
----
-
-## Riepilogo Priorita
-
-| # | Componente | Priorita | Righe Risparmiate | Complessita |
-|---|------------|----------|-------------------|-------------|
-| 1 | ProfileEditForm | ALTA | ~360 | Bassa |
-| 2 | AdminLayout | MEDIA-ALTA | ~200 | Media |
-| 3 | PageHeader | MEDIA | ~100 | Bassa |
-| 4 | MetricCard | MEDIA | ~80 | Bassa |
-| 5 | EmptyState | MEDIA | ~60 | Bassa |
-| 6 | LoadingState | BASSA | ~40 | Bassa |
-| 7 | CRUD Table | BASSA | ~500+ | Alta |
-
----
-
-## Piano di Implementazione Consigliato
-
-### Fase 1 (Quick Wins)
-1. `ProfileEditForm` - Massimo impatto, minima complessita
-2. `PageHeader` - Semplicissimo, usato ovunque
-3. `LoadingState` - Semplicissimo, usato ovunque
-
-### Fase 2 (Strutturali)
-4. `AdminLayout` parametrizzato - Richiede test accurati
-5. `MetricCard` - Richiede refactor dashboard
-
-### Fase 3 (Nice to Have)
-6. `EmptyState`
-7. CRUD Table patterns (valutazione futura)
+**Totale stimato**: ~165 righe risparmiate per pagina = ~990 righe su 6 pagine
 
 ---
 
 ## Note Tecniche
 
-Tutti i nuovi componenti dovrebbero:
-- Risiedere in `src/components/common/` o `src/components/profile/`
-- Supportare props `className` per override stili
-- Usare Framer Motion per animazioni consistenti
-- Seguire il design system esistente (docs/design-system.md)
+- Tutti i componenti in `src/components/crud/`
+- Export centralizzato via `index.ts`
+- Compatibilita con componenti esistenti (`PageHeader`, `EmptyState`, `LoadingState`)
+- Documentazione in `docs/design-system.md` dopo completamento
+- I form restano completamente custom per massima flessibilita
+
