@@ -1,136 +1,91 @@
-# Bravo! - Stato Refactoring Componenti Base
 
-## ✅ Refactoring Completato
+# Piano: Neutralizzazione Pagine Pubbliche
 
-### Componenti Base Creati
-
-| Componente | Path | Descrizione |
-|------------|------|-------------|
-| `BaseCardImage` | `src/components/common/BaseCardImage.tsx` | Immagine card con aspect ratio, fallback emoji e badge overlay |
-| `BaseModal` | `src/components/common/BaseModal.tsx` | Modal bottom-sheet (mobile) / centered (desktop) con header opzionale |
-| `ModalCloseButton` | `src/components/common/BaseModal.tsx` | Bottone X per overlay su immagini |
-
-### Componenti Migrati
-
-| Componente | Usa BaseCardImage | Usa BaseModal | Stato |
-|------------|-------------------|---------------|-------|
-| `BookingCard` | ✅ | - | Completato |
-| `BookingDetailModal` | ✅ | ✅ | Completato |
-| `ExperienceCardCompact` | ✅ | - | Completato |
-| `ExperienceDetailModal` | ✅ | ✅ | Completato |
-| `ExperienceCard` | ✅ | - | Completato |
-| `HRExperienceCard` | ✅ | - | Completato |
-
-### Linee di Codice Risparmiate
-
-- ~50 righe per ogni card che usa `BaseCardImage`
-- ~30 righe per ogni modal che usa `BaseModal`
-- **Totale stimato: ~200+ righe eliminate**
+## Obiettivo
+Rendere le pagine di autenticazione inclusive per aziende, associazioni e individui, rimuovendo riferimenti specifici alle aziende.
 
 ---
 
-## 📖 Come Usare i Componenti Base
+## 1. Rimozione Homepage e Redirect a Login
 
-### BaseCardImage
+**File: `src/App.tsx`**
 
-```tsx
-import { BaseCardImage } from "@/components/common/BaseCardImage";
+La homepage attuale verra eliminata e la route `/` redirezionera direttamente a `/login`.
 
-// Card con immagine quadrata e badge categoria
-<BaseCardImage
-  imageUrl={item.image_url}
-  alt={item.title}
-  aspectRatio="square"  // "square" | "video" | "portrait"
-  fallbackEmoji="🤝"
-  badge={<Badge>Categoria</Badge>}
-  badgePosition="top-left"  // "top-left" | "top-right" | "bottom-left" | "bottom-right"
-/>
+Modifiche:
+- Rimuovere l'import di `Index`
+- Sostituire `<Route path="/" element={<Index />} />` con un redirect:
+  ```tsx
+  <Route path="/" element={<Navigate to="/login" replace />} />
+  ```
+- Aggiungere import di `Navigate` da react-router-dom
 
-// IMPORTANTE: Aggiungere `group` al parent per hover scale
-<motion.button className="group ...">
-  <BaseCardImage ... />
-</motion.button>
-```
-
-### BaseModal
-
-```tsx
-import { BaseModal, ModalCloseButton } from "@/components/common/BaseModal";
-
-// Modal semplice con close overlay
-<BaseModal open={isOpen} onClose={handleClose}>
-  <div className="relative">
-    <div className="absolute top-4 right-4 z-10">
-      <ModalCloseButton onClick={handleClose} />
-    </div>
-    {/* contenuto */}
-  </div>
-</BaseModal>
-
-// Modal con header (back + title + close)
-<BaseModal
-  open={isOpen}
-  onClose={handleClose}
-  showBackButton
-  onBack={handleBack}
-  title="Seleziona data"
->
-  {/* contenuto */}
-</BaseModal>
-```
-
-### Pattern Standard per Modal con Immagine
-
-```tsx
-<BaseModal open={!!item} onClose={onClose}>
-  <div className="flex flex-col max-h-[95vh] sm:max-h-[90vh]">
-    {/* Close button overlay */}
-    <div className="absolute top-4 right-4 z-10">
-      <ModalCloseButton onClick={onClose} />
-    </div>
-
-    {/* Scrollable content */}
-    <div className="flex-1 overflow-y-auto">
-      <BaseCardImage
-        imageUrl={item.image}
-        alt={item.title}
-        className="rounded-none"
-      />
-      <div className="p-5 space-y-4">
-        {/* Contenuto */}
-      </div>
-    </div>
-
-    {/* Fixed footer */}
-    <div className="flex-shrink-0 p-5 border-t border-border bg-background">
-      <Button className="w-full h-12 rounded-xl">Azione</Button>
-    </div>
-  </div>
-</BaseModal>
-```
+**Nota**: Questo non causa problemi. Gli utenti che arrivano alla root verranno automaticamente portati al login. Il file `src/pages/Index.tsx` puo essere eliminato in seguito se desiderato.
 
 ---
 
-## 📚 Documentazione
+## 2. Aggiornamento AuthLayout
 
-La documentazione completa dei componenti è in `docs/design-system.md`:
-- Sezione "BaseCardImage" con tutte le props e esempi
-- Sezione "BaseModal" con pattern di utilizzo
-- Sezione "CRUD Table Pattern" per tabelle admin
+**File: `src/components/auth/AuthLayout.tsx`**
 
----
-
-## 🔜 Refactoring Futuri Consigliati
-
-1. **ExperienceCard.tsx** → Usare `BaseCardImage`
-2. **HRExperienceCard.tsx** → Usare `BaseCardImage`  
-3. **Altre modal** → Valutare migrazione a `BaseModal`
+| Elemento | Attuale | Nuovo |
+|----------|---------|-------|
+| Tagline principale | "Fai del bene, insieme alla tua azienda. Un'esperienza di volontariato alla volta." | "Bravo! è dove si crea impatto positivo. Trasformiamo la buona intenzione in azione concreta" |
+| Social proof | "+2,500 dipendenti volontari" | "+1,800 persone Brave" |
 
 ---
 
-## 📝 Note Tecniche
+## 3. Aggiornamento Pagina Login
 
-- **Z-index Modal**: `z-[100]` per sovrapporsi alla navigazione
-- **Hover su immagini**: Richiede `group` sul parent per `group-hover:scale-105`
-- **Aspect ratio**: `square` (1:1), `video` (16:9), `portrait` (3:4)
-- **Badge position**: 4 posizioni angolari supportate
+**File: `src/pages/Login.tsx`**
+
+| Elemento | Attuale | Nuovo |
+|----------|---------|-------|
+| Subtitle | "Accedi per scoprire le esperienze di volontariato disponibili" | "Inserisci i tuoi dati per accedere a Bravo!" |
+| Placeholder email | `nome@azienda.it` | `example@domain.com` |
+
+---
+
+## 4. Aggiornamento Pagina Registrazione
+
+**File: `src/pages/Register.tsx`**
+
+| Elemento | Attuale | Nuovo |
+|----------|---------|-------|
+| Subtitle | "Inizia il tuo percorso di volontariato aziendale" | "Inserisci i tuoi dati per creare un account" |
+| Label email | "Email aziendale" | "Email" |
+| Placeholder email | `nome@azienda.it` | `example@domain.com` |
+| Variabile `companyName` | Resta invariata | Rinominata in `entityName` per coerenza semantica |
+
+Da verificare se rinominare la variabile 'companyName' in `entityName` causa problemi nei database e correggere eventuali problemi
+
+---
+
+## 5. Aggiornamento pagina Password Dimenticata
+
+Modificare il placeholder email in `example@domain.com`
+
+---
+
+## 6. Riepilogo File Modificati
+
+| File | Azione |
+|------|--------|
+| `src/App.tsx` | Redirect `/` → `/login` |
+| `src/components/auth/AuthLayout.tsx` | Testi neutrali |
+| `src/pages/Login.tsx` | Placeholder neutro |
+| `src/pages/Register.tsx` | Subtitle, label e placeholder neutri |
+| `src/pages/Index.tsx` | Opzionale: eliminazione successiva |
+
+---
+
+## Dettagli Tecnici
+
+### Redirect vs Rimozione Homepage
+Uso `<Navigate to="/login" replace />` invece di eliminare la route perche:
+- Eventuali link esterni o bookmark alla root continueranno a funzionare
+- Il redirect e trasparente per l'utente
+- Il file `Index.tsx` puo essere eliminato in un secondo momento per pulizia
+
+### Variabile `companyName` in Register
+La logica interna usa `companyName` ma il sistema di access code gia supporta entita diverse (aziende, associazioni). Rinomino in `entityName` per maggiore chiarezza semantica, senza cambiare la logica.
