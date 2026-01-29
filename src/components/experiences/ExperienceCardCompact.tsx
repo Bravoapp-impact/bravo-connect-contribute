@@ -49,7 +49,7 @@ export function ExperienceCardCompact({ experience, index, onSelect }: Experienc
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
       onClick={() => onSelect(experience)}
-      className="group flex-shrink-0 w-[165px] sm:w-[185px] md:w-[210px] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl"
+      className="group flex-shrink-0 w-[145px] sm:w-[165px] md:w-[200px] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl"
     >
       {/* Square Image with category badge */}
       <BaseCardImage
@@ -58,9 +58,9 @@ export function ExperienceCardCompact({ experience, index, onSelect }: Experienc
         aspectRatio="square"
         badge={
           experience.category ? (
-            <Badge
+          <Badge
               variant="secondary"
-              className="text-xs font-medium bg-white/95 text-foreground backdrop-blur-sm rounded-full px-3 py-1 shadow-sm"
+              className="text-[10px] font-medium bg-white/95 text-foreground backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm"
             >
               {experience.category}
             </Badge>
@@ -70,27 +70,27 @@ export function ExperienceCardCompact({ experience, index, onSelect }: Experienc
       />
 
       {/* Content */}
-      <div className="pt-3 space-y-1.5">
+      <div className="pt-2 space-y-1">
         {/* Title - regular weight, more natural */}
-        <h3 className="text-[15px] font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+        <h3 className="text-[13px] font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
           {experience.title}
         </h3>
 
         {/* Association with logo */}
         {experience.association_name && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             {experience.association_logo_url ? (
               <img
                 src={experience.association_logo_url}
                 alt=""
-                className="w-4 h-4 rounded-full object-cover flex-shrink-0"
+                className="w-3.5 h-3.5 rounded-full object-cover flex-shrink-0"
               />
             ) : (
-              <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                <span className="text-[8px]">🏢</span>
+              <div className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                <span className="text-[7px]">🏢</span>
               </div>
             )}
-            <p className="text-[13px] text-muted-foreground font-light truncate">
+            <p className="text-[11px] text-muted-foreground font-light truncate">
               {experience.association_name}
             </p>
           </div>
@@ -98,7 +98,7 @@ export function ExperienceCardCompact({ experience, index, onSelect }: Experienc
 
         {/* Date + Duration + Spots - lighter text */}
         {nextDate && (
-          <div className="flex items-center gap-2 text-[13px] text-muted-foreground font-light">
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-light">
             <span>
               {format(new Date(nextDate.start_datetime), "EEE d MMM", { locale: it })}
             </span>
@@ -106,14 +106,14 @@ export function ExperienceCardCompact({ experience, index, onSelect }: Experienc
               <>
                 <span className="text-border">·</span>
                 <span className="flex items-center gap-0.5">
-                  <Clock className="h-3 w-3" />
+                  <Clock className="h-2.5 w-2.5" />
                   {duration}h
                 </span>
               </>
             )}
             <span className="text-border">·</span>
             <span className={`flex items-center gap-0.5 ${availableSpots <= 3 ? "text-destructive font-normal" : ""}`}>
-              <Users className="h-3 w-3" />
+              <Users className="h-2.5 w-2.5" />
               {availableSpots}
             </span>
           </div>
