@@ -147,18 +147,39 @@ const colors = CATEGORY_COLORS[categoryKey] ?? { text: "text-muted-foreground", 
 
 ### Font Family
 ```css
-font-family: 'Outfit', sans-serif;
+font-family: 'Plus Jakarta Sans', sans-serif;
+letter-spacing: -0.3px;
+line-height: 1.3em;
 ```
 
-### Dimensioni
+### Dimensioni - Mobile First
 
-| Utilizzo | Classe Tailwind | Esempio |
-|----------|-----------------|---------|
-| Titolo pagina | `text-2xl md:text-3xl font-bold` | "Dashboard HR" |
-| Titolo sezione | `text-lg font-semibold` | "Date programmate" |
-| Testo card value | `text-xl sm:text-2xl font-bold` | "245" |
-| Testo label | `text-xs sm:text-sm text-muted-foreground` | "Ore Volontariato" |
-| Testo body | `text-sm text-muted-foreground` | Descrizioni |
+L'app segue uno stile compatto e moderno. Le dimensioni sono pensate per mobile e poi scalate su desktop.
+
+| Utilizzo | Mobile | Desktop | Esempio |
+|----------|--------|---------|---------|
+| Titolo pagina | `text-xl font-bold` | `md:text-2xl` | "Esperienze di volontariato" |
+| Sottotitolo pagina | `text-[13px] text-muted-foreground` | - | "Scopri le opportunità disponibili" |
+| Titolo sezione | `text-base font-semibold` | `md:text-lg` | "Prossime esperienze" |
+| Titolo card | `text-[13px] font-medium` | - | Titolo esperienza |
+| Testo secondario card | `text-[11px] text-muted-foreground font-light` | - | Associazione, data, durata |
+| Badge card | `text-[10px] font-medium` | - | Categoria |
+| Card metriche value | `text-xl font-bold` | `md:text-2xl` | "245" |
+| Card metriche label | `text-[11px] text-muted-foreground` | - | "Ore donate" |
+| Empty state title | `text-base font-semibold` | - | "Nessuna prenotazione" |
+| Empty state desc | `text-[13px] text-muted-foreground` | - | Descrizione |
+| Input placeholder | `text-[13px]` | - | "Cerca..." |
+| Bottom nav label | `text-[10px] font-medium` | - | "Esplora", "Prenotazioni" |
+
+### Icone - Dimensioni Compatte
+
+| Contesto | Dimensione | Classe |
+|----------|------------|--------|
+| Icone inline card | 10px | `h-2.5 w-2.5` |
+| Logo associazione card | 14px | `w-3.5 h-3.5` |
+| Icone metriche | 20-24px | `h-5 w-5 sm:h-6 sm:w-6` |
+| Icone empty state | 40px | `h-10 w-10` |
+| Icone navigation | 24px | `h-6 w-6` |
 
 ---
 
