@@ -38,7 +38,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           >
             <img src={bravoLogoWhite} alt="Bravo!" className="h-12 lg:h-16 w-auto mb-6" />
             <p className="text-xl lg:text-2xl font-light opacity-90 max-w-md leading-relaxed">
-              Bravo! è dove si crea impatto positivo
+              Esperienze sociali ad alto impatto positivo
             </p>
           </motion.div>
 
@@ -58,7 +58,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
                 </div>
               ))}
             </div>
-            <p className="text-sm opacity-80">+1,800 persone hanno vissuto le esperienze di Bravo!</p>
+            <p className="text-sm opacity-80">+1,800 persone hanno vissuto le nostre esperienze</p>
           </motion.div>
         </div>
       </div>
