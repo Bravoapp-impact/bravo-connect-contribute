@@ -15,7 +15,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       {/* Left side - Decorative */}
       <div className="hidden md:flex md:w-1/2 lg:w-3/5 gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 opacity-30" />
-        
+
         {/* Decorative shapes */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -29,23 +29,19 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           transition={{ duration: 1, delay: 0.4 }}
           className="absolute bottom-32 right-20 w-80 h-80 rounded-full bg-white/10 blur-3xl"
         />
-        
+
         <div className="relative z-10 flex flex-col justify-center px-12 lg:px-20 text-primary-foreground">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <img 
-              src={bravoLogoWhite}
-              alt="Bravo!" 
-              className="h-12 lg:h-16 w-auto mb-6" 
-            />
+            <img src={bravoLogoWhite} alt="Bravo!" className="h-12 lg:h-16 w-auto mb-6" />
             <p className="text-xl lg:text-2xl font-light opacity-90 max-w-md leading-relaxed">
               Bravo! è dove si crea impatto positivo
             </p>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -62,9 +58,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
                 </div>
               ))}
             </div>
-            <p className="text-sm opacity-80">
-              +1,800 persone Brave
-            </p>
+            <p className="text-sm opacity-80">+1,800 persone hanno vissuto le esperienze di Bravo!</p>
           </motion.div>
         </div>
       </div>
