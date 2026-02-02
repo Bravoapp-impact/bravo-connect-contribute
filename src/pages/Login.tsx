@@ -26,17 +26,13 @@ export default function Login() {
         title: "Benvenuto!",
         description: "Accesso effettuato con successo.",
       });
-      
+
       // Redirect based on role
       const user = result?.user;
       if (user) {
         const { supabase } = await import("@/integrations/supabase/client");
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-        
+        const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+
         if (profile?.role === "super_admin") {
           navigate("/super-admin");
         } else if (profile?.role === "hr_admin") {
@@ -61,10 +57,7 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout
-      title="Bentornato"
-      subtitle="Inserisci i tuoi dati per accedere a Bravo!"
-    >
+    <AuthLayout title="Bentornato" subtitle="Inserisci i tuoi dati per accedere">
       <form onSubmit={handleSubmit} className="space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -91,10 +84,7 @@ export default function Login() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <Link
-                to="/forgot-password"
-                className="text-xs text-primary hover:text-primary/80 transition-colors"
-              >
+              <Link to="/forgot-password" className="text-xs text-primary hover:text-primary/80 transition-colors">
                 Password dimenticata?
               </Link>
             </div>
@@ -118,11 +108,7 @@ export default function Login() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
         >
-          <Button
-            type="submit"
-            className="w-full h-12 text-base font-medium"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
             {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
@@ -142,10 +128,7 @@ export default function Login() {
         className="mt-8 text-center text-sm text-muted-foreground"
       >
         Non hai ancora un account?{" "}
-        <Link
-          to="/register"
-          className="font-medium text-primary hover:text-primary/80 transition-colors"
-        >
+        <Link to="/register" className="font-medium text-primary hover:text-primary/80 transition-colors">
           Registrati
         </Link>
       </motion.p>
