@@ -47,13 +47,15 @@ export default function Experiences() {
       // Fetch experiences with association details (RLS filters to user's company)
       const { data: expData, error: expError } = await supabase
         .from("experiences")
-        .select(`
+        .select(
+          `
           *,
           associations:association_id (
             name,
             logo_url
           )
-        `)
+        `,
+        )
         .eq("status", "published")
         .order("created_at", { ascending: false });
 
@@ -101,7 +103,7 @@ export default function Experiences() {
         baseExperiences.map((exp) => ({
           ...exp,
           experience_dates: datesByExperienceId.get(exp.id) ?? [],
-        }))
+        })),
       );
     } catch (error) {
       console.error("Error fetching experiences:", error);
@@ -119,23 +121,15 @@ export default function Experiences() {
     (exp) =>
       exp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       exp.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exp.category?.toLowerCase().includes(searchQuery.toLowerCase())
+      exp.category?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
     <AppLayout>
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
-      >
-        <h1 className="text-xl font-bold text-foreground mb-0.5">
-          Esperienze di volontariato
-        </h1>
-        <p className="text-[13px] text-muted-foreground">
-          Scopri le opportunità disponibili per la tua azienda
-        </p>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+        <h1 className="text-xl font-bold text-foreground mb-0.5">Esperienze sociali ad alto impatto positivo</h1>
+        <p className="text-[13px] text-muted-foreground">Scopri le opportunità disponibili per la tua azienda</p>
       </motion.div>
 
       {/* Search */}
@@ -174,9 +168,7 @@ export default function Experiences() {
         <div className="text-center py-16">
           <p className="text-4xl mb-4">🔍</p>
           <h3 className="text-base font-semibold mb-1">Nessuna esperienza trovata</h3>
-          <p className="text-[13px] text-muted-foreground">
-            Prova a modificare i criteri di ricerca
-          </p>
+          <p className="text-[13px] text-muted-foreground">Prova a modificare i criteri di ricerca</p>
         </div>
       ) : (
         <div className="space-y-8">
