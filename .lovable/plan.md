@@ -1,133 +1,217 @@
 
-# Piano di Miglioramento: Scalabilità, Fluidità, Sicurezza, Velocità
+# Analisi e Unificazione Design System
 
-## Principio guida
+## Riepilogo delle Discrepanze Trovate
 
-Ogni modifica è isolata, retrocompatibile e verificabile. Le modifiche sono raggruppate in batch dal rischio più basso al più alto. I flussi esistenti non vengono mai rimossi — vengono solo migliorati in-place.
-
----
-
-## BATCH 1 — Patch rapide, zero rischio regressione
-Modifiche a singolo file, nessuna dipendenza tra loro.
-
-### 1.1 Fix `console.error` in produzione
-- **File:** `src/pages/Impact.tsx` riga 89
-- **Modifica:** `console.error("Error fetching impact stats:", error)` → `devLog.error(...)`
-- **Perché:** In produzione espone dettagli del DB. Il `devLog` già importato in altri file è la soluzione standard già in uso nel progetto.
-- **Rischio regressione:** Zero. Solo il logger cambia.
-
-### 1.2 Fix `console.error` in Experiences
-- **File:** `src/pages/Experiences.tsx` riga 109
-- **Modifica:** `console.error("Error fetching experiences:", error)` → `devLog.error(...)`
-- **Rischio regressione:** Zero.
-
-### 1.3 Quick Actions: `<a>` → `<Link>` nel Super Admin Dashboard
-- **File:** `src/pages/super-admin/SuperAdminDashboard.tsx` righe 185-213
-- **Modifica:** Sostituire i 4 tag `<a href="...">` con `<Link to="...">` di react-router-dom.
-- **Perché:** `<a href>` causa un full page reload, perdendo tutto lo stato React e la sessione di Supabase in memoria. `<Link>` è una navigazione SPA istantanea.
-- **Rischio regressione:** Zero. L'import di `Link` è già presente in altri layout del progetto.
-
-### 1.4 Cap delay animazioni su liste grandi
-- **File:** `src/components/experiences/ExperienceCardCompact.tsx` riga 50
-- **Modifica:** `delay: index * 0.05` → `delay: Math.min(index * 0.05, 0.3)`
-- **Perché:** Con 20+ esperienze l'ultima card appare dopo 1 secondo. Il cap a 0.3s è impercettibile visivamente ma elimina il ritardo eccessivo.
-- **Rischio regressione:** Zero. Solo il valore numerico del delay cambia.
-
-### 1.5 Empty state dedicato per "zero esperienze assegnate"
-- **File:** `src/pages/Experiences.tsx`
-- **Logica attuale:** Un unico empty state `filteredExperiences.length === 0` che appare sia quando la ricerca non trova risultati, sia quando il catalogo è vuoto ab initio.
-- **Modifica:** Distinguere i due casi:
-  - `experiences.length === 0` (catalogo vuoto) → messaggio "Nessuna esperienza disponibile per la tua azienda al momento. Torna a breve!"
-  - `filteredExperiences.length === 0 && experiences.length > 0` (ricerca senza risultati) → messaggio esistente "Prova a modificare i criteri di ricerca"
-- **Rischio regressione:** Zero. Aggiunge un branch if/else, non rimuove nulla.
-
-### 1.6 Body scroll lock nel BaseModal (mobile)
-- **File:** `src/components/common/BaseModal.tsx`
-- **Modifica:** Aggiungere un `useEffect` che quando `open === true` imposta `document.body.style.overflow = 'hidden'` e lo ripristina a `''` quando il modal si chiude (cleanup dell'effect).
-- **Perché:** Su iOS Safari, senza questo, il contenuto sotto la modale scorre con il dito — effetto "scroll-through" molto fastidioso su mobile.
-- **Rischio regressione:** Basso. Il cleanup nell'`useEffect` garantisce il ripristino in tutti i casi (chiusura normale, navigazione, unmount).
-
-### 1.7 ScrollToTop alla navigazione
-- **File:** Nuovo `src/components/common/ScrollToTop.tsx` + `src/App.tsx`
-- **Modifica:** Creare un componente `ScrollToTop` minimalista che usa `useEffect` su `location.pathname` per chiamare `window.scrollTo(0, 0)`. Inserirlo una sola volta dentro `<BrowserRouter>` in `App.tsx`.
-- **Rischio regressione:** Quasi zero. Non tocca nessun componente esistente. Il `ScrollToTop` è un componente "effetto collaterale" — non renderizza nulla nel DOM.
-
-### 1.8 Badge "Completo" su ExperienceCardCompact quando posti = 0
-- **File:** `src/components/experiences/ExperienceCardCompact.tsx`
-- **Modifica:** Quando `availableSpots <= 0`, aggiungere una pillola "Completo" sulla card (sovrapposta all'immagine o nel testo) e ridurre l'opacità della card a `opacity-60`. Il click rimane attivo — la selezione della data nel modal è già gestita con `disabled={isFull}`.
-- **Perché:** L'utente su mobile non dovrebbe aprire il modal per scoprire che è pieno. Risparmia 2-3 tap inutili.
-- **Rischio regressione:** Zero. Non disabilita il click, solo aggiunge un segnale visivo.
+Dopo aver analizzato sistematicamente tutte le pagine e i componenti dell'app, ho identificato **5 categorie di inconsistenze** rispetto al design system ufficiale.
 
 ---
 
-## BATCH 2 — Performance query (N+1 fix)
+## Categoria 1 — Tipografia: font e dimensioni fuori standard
 
-### 2.1 Fix N+1 in HRDashboard — Upcoming Events
-- **File:** `src/pages/HRDashboard.tsx` righe 147-165
-- **Problema attuale:** Per ogni evento imminente (fino a 10) viene eseguita una query separata per contare i partecipanti aziendali → fino a 10 query sequenziali.
-- **Soluzione:** Raccogliere tutti gli `experience_date_id` degli eventi imminenti, poi eseguire **una sola query** `.in("experience_date_id", dateIds)` per recuperare tutte le prenotazioni rilevanti. Costruire la mappa `dateId → count` lato client.
-- **Impatto:** Da N query a 1 query. Riduce il tempo di caricamento della dashboard HR da ~500-1000ms a ~50ms per la sezione eventi.
-- **Rischio regressione:** Basso. La logica di filtraggio (solo utenti della stessa azienda) rimane identica, cambia solo il meccanismo di fetching.
+Il design system prescrive una scala fissa senza breakpoint responsivi per i font. Ci sono violazioni in più punti:
 
-### 2.2 Fix N+1 in ExperienceDetailModal — Confirmed Counts
-- **File:** `src/components/experiences/ExperienceDetailModal.tsx` righe 76-92
-- **Problema attuale:** Per ogni data disponibile viene eseguita una query separata per il count delle prenotazioni.
-- **Soluzione:** Una singola query `.in("experience_date_id", dateIds).eq("status", "confirmed")` + raggruppamento lato client in una `Map<dateId, count>`.
-- **Rischio regressione:** Basso. Il risultato finale è identico (count per data). Solo il meccanismo cambia.
+**Profile.tsx (pagina employee)**
+- `text-muted-foreground mt-1` sulla descrizione header → deve essere `text-[13px] text-muted-foreground`
+- `text-lg font-semibold` sul nome nel card avatar → deve essere dimensione fissa, non `text-lg`
+- `text-sm font-medium` e `text-sm text-muted-foreground` nella sezione "Informazioni account" → devono essere `text-[13px]`
 
-### 2.3 Aggiunta `.limit()` alla query bookings in HRDashboard
-- **File:** `src/pages/HRDashboard.tsx` riga 86
-- **Modifica:** Aggiungere `.limit(1000)` alla query delle prenotazioni. Supabase ha già un cap a 1000 implicito ma è meglio esplicitarlo, e in futuro si può considerare aggregazione server-side.
-- **Rischio regressione:** Zero. Cambia solo il parametro della query, non la struttura dei dati.
+**HRProfile.tsx (pagina HR)**
+- `text-lg font-semibold` sul nome avatar → non allineato
+- `text-sm font-medium` / `text-sm text-muted-foreground` nella sezione info → `text-[13px]`
+- `text-xs text-primary` per la label "HR Admin" → lasciabile, ma incoerente con la scala
 
----
+**HRExperienceCard.tsx**
+- `text-lg leading-tight` sul titolo esperienza → non allineata con la scala tipografica unificata. Il design system non prevede `text-lg` per titoli di card admin, il titolo di sezione è `text-base font-semibold`
+- `text-sm text-muted-foreground` sulla description e negli quick stats → dovrebbe essere `text-[13px]`
 
-## BATCH 3 — Tipi TypeScript condivisi
+**UpcomingEvents.tsx**
+- `text-lg` sul `CardTitle` "Prossimi Eventi" → il design system dice titolo sezione = `text-base font-semibold`. La CardTitle nativa di shadcn usa `text-2xl` di default, ma qui viene overridata a `text-lg` che è ancora fuori scala
 
-### 3.1 Creare `src/types/experiences.ts`
-- **File:** Nuovo `src/types/experiences.ts`
-- **Contenuto:** Estrarre le interfacce `ExperienceDate` ed `Experience` che sono replicate in 6+ file identicamente.
-- **File aggiornati** (solo import, nessuna modifica logica):
-  - `src/pages/Experiences.tsx`
-  - `src/components/experiences/ExperienceDetailModal.tsx`
-  - `src/components/experiences/ExperienceCardCompact.tsx`
-  - `src/components/experiences/ExperienceCard.tsx`
-  - `src/components/experiences/ExperienceSection.tsx`
-- **Rischio regressione:** Basso. TypeScript verifica in fase di build che i tipi siano compatibili. Se qualcosa non corrisponde, errore a compile time (non a runtime).
+**SDGImpactGrid.tsx**
+- `text-xs font-medium uppercase` e `text-sm font-medium` e `text-base font-bold` sui dati SDG → mix di dimensioni non dalla scala ufficiale
 
----
+**TopPerformersTable.tsx**
+- `text-lg` (emoji medaglie) e `text-xl` → le emoji sono ok, ma testi come "Nessun dipendente..." sono `text-sm` invece di `text-[13px]`
 
-## Cosa NON è incluso in questo piano (e perché)
+**EmptyState.tsx (componente globale)**
+- `text-lg font-medium` sul titolo → il design system dice `text-base font-semibold` per gli empty state title
+- `text-sm text-muted-foreground` sulla descrizione → dovrebbe essere `text-[13px]`
 
-- **Migrazione a React Query**: Alta complessità, rischio regressione medio-alto. Richiede riscrivere i data layer di tutte le pagine employee. Da pianificare come sprint separato dopo un periodo di stabilità.
-- **Refactoring ExperiencesPage.tsx (1016 righe)**: Alta complessità, rischio regressione alto data la quantità di logica interrelata (form, SDG, tag, date, upload immagini). Da affrontare separatamente con test manuali dedicati.
-- **Ottimistic updates in MyBookings**: La funzione `handleCancel` è stata appena modificata (aggiunto `setSelectedBooking(null)`). Un ulteriore intervento immediato aumenta il rischio di regressione nel flusso di cancellazione.
+**ExperienceCard.tsx (card desktop/non compatta)**
+- `text-sm font-medium text-primary` per l'association name → OK come stile ma usa `text-sm` invece di `text-[13px]`
+- `text-xl font-semibold` per il titolo della card → fuori dalla scala (titolo card = `text-[13px] font-medium`)
+- `text-sm text-muted-foreground` per description e location → `text-[13px]`
+- `text-sm` per le info data/ora → `text-[11px]`
+
+Questa card (usata nella vista non-compatta) sembra un residuo del vecchio stile. Andrebbe allineata alla compact card o usata solo come "card espansa" con scala propria.
 
 ---
 
-## Riepilogo file modificati
+## Categoria 2 — Icone colorate: inconsistenze tra pagine
 
+Il design system stabilisce che le icone nelle card metriche devono avere colori tematici precisi. Ci sono violazioni e incoerenze:
+
+**SuperAdminDashboard.tsx** ✅ OK
+- "Utenti" usa `text-bravo-magenta` — non previsto dal design system (che mappa Persone/Utenti → `text-bravo-purple`). Il magenta è un "accent decorativo" riservato a hero/auth.
+- "Esperienze" usa `text-bravo-pink` — il design system dice Esperienze/Calendar → `text-bravo-purple`
+- "Prenotazioni" usa `text-bravo-orange` con `TrendingUp` — il design system assegna TrendingUp → `text-success`
+
+**TopPerformersTable.tsx**
+- Icona `Trophy` con `text-primary` — giusto, è un'icona decorativa non metrica, `text-primary` è accettabile
+
+**HRExperienceCard.tsx**
+- `ChevronRight` con `group-hover/date:text-primary` → viola la regola "hover states sono neutri, MAI colorati"
+
+**AssociationDashboard.tsx**
+- `Calendar className="h-5 w-5 text-primary"` nel CardTitle → l'icona accanto al titolo sezione usa `text-primary` (viola), che è una scelta di stile non vietata ma non standardizzata nei titoli sezione
+- N+1 query ancora presente: `Promise.all` con query separate per i count → non incluso nel batch 2 del piano precedente, rilevato adesso
+
+---
+
+## Categoria 3 — Card style: differenze tra aree dell'app
+
+**Profile.tsx (employee)**
 ```
-BATCH 1 (patch rapide):
-├── src/pages/Impact.tsx                           — devLog.error
-├── src/pages/Experiences.tsx                      — devLog.error + empty state
-├── src/pages/super-admin/SuperAdminDashboard.tsx  — <a> → <Link>
-├── src/components/experiences/ExperienceCardCompact.tsx — delay cap + badge completo
-├── src/components/common/BaseModal.tsx            — body scroll lock
-├── src/components/common/ScrollToTop.tsx          — nuovo file
-└── src/App.tsx                                    — import ScrollToTop
-
-BATCH 2 (performance query):
-├── src/pages/HRDashboard.tsx                      — N+1 fix + .limit()
-└── src/components/experiences/ExperienceDetailModal.tsx — N+1 fix
-
-BATCH 3 (tipi condivisi):
-├── src/types/experiences.ts                       — nuovo file
-├── src/pages/Experiences.tsx                      — import tipi
-├── src/components/experiences/ExperienceDetailModal.tsx — import tipi
-├── src/components/experiences/ExperienceCardCompact.tsx — import tipi
-├── src/components/experiences/ExperienceCard.tsx  — import tipi
-└── src/components/experiences/ExperienceSection.tsx — import tipi
+Card → nessuna classe aggiuntiva (usa default: "rounded-lg border bg-card shadow-sm")
+```
+**HRProfile.tsx / HRLayout cards**
+```
+Card → "border-border/50 bg-card/80 backdrop-blur-sm"
 ```
 
-Tutti e tre i batch possono essere eseguiti in una singola implementazione, nell'ordine specificato, in modo che se qualcosa va storto nei batch più rischiosi (2 e 3) il batch 1 sia già applicato e funzionante.
+Il design system indica che le card nelle aree admin usano `border-border/50 bg-card/80 backdrop-blur-sm`, mentre quelle employee usano il default. Questa è una differenza **intenzionale** tra le aree, ma la pagina `Profile.tsx` employee mescola i due stili nello stesso componente (alcune card con default, senza consistenza).
+
+---
+
+## Categoria 4 — Hover states colorati (violazione design system)
+
+Il design system è esplicito: **tutti gli hover devono essere neutri (grigi), MAI colorati.**
+
+**ExperienceCardCompact.tsx e BookingCard.tsx (card future)**
+```
+group-hover:text-primary transition-colors  ← sul titolo
+```
+Viola la regola `"group-hover:text-primary sui titoli"` esplicitamente citata nel design system.
+
+**HRExperienceCard.tsx**
+```
+group-hover/date:text-primary  ← sulla ChevronRight al hover
+```
+
+**UpcomingEvents.tsx**
+```
+hover:bg-muted/50 transition-colors  ← OK, neutro ✅
+```
+
+---
+
+## Categoria 5 — Dimensioni icone inline: inconsistenze
+
+Il design system prescrive:
+- Icone inline card: `h-2.5 w-2.5` (10px)
+- Icone metriche: `h-5 w-5` (20px) o `h-6 w-6` (24px)
+
+**HRExperienceCard.tsx**
+- `Calendar`, `Users` negli "quick stats" usano `h-4 w-4` → dovrebbero essere `h-2.5 w-2.5` per icone inline
+- `Calendar`, `MapPin`, `Clock`, `Users` nel body espanso usano `h-4 w-4` → accettabile nel contesto
+
+**UpcomingEvents.tsx**
+- `CalendarDays`, `MapPin` usano `h-3 w-3` → tra i due standard, leggermente fuori
+- `Users` nell'badge usa `h-3 w-3` → OK per badge
+
+---
+
+## Piano di Intervento (File per File)
+
+### GRUPPO A — Tipografia (alta priorità, zero rischio)
+
+**`src/components/common/EmptyState.tsx`**
+- `text-lg font-medium` → `text-base font-semibold`
+- `text-sm text-muted-foreground` → `text-[13px] text-muted-foreground`
+
+**`src/pages/Profile.tsx`** (pagina employee)
+- Header subtitle: aggiungere `text-[13px]` esplicito
+- Card avatar: `text-lg font-semibold` → `text-base font-semibold`
+- `text-sm font-medium` e `text-sm text-muted-foreground` → `text-[13px]`
+
+**`src/pages/hr/HRProfile.tsx`**
+- `text-lg font-semibold` → `text-base font-semibold`
+- `text-sm` nelle info → `text-[13px]`
+
+**`src/components/hr/UpcomingEvents.tsx`**
+- `CardTitle text-lg` → `text-base`
+- Empty state `text-muted-foreground` senza dimensione esplicita → `text-[13px]`
+
+**`src/components/hr/SDGImpactGrid.tsx`**
+- `text-xs` → `text-[10px]` (per badge/meta piccoli)
+- `text-sm font-medium` → `text-[13px] font-medium`
+- `text-base font-bold` sul valore ore → `text-xl font-bold` (allineato al pattern metric)
+
+**`src/components/hr/HRExperienceCard.tsx`**
+- `text-lg leading-tight` titolo → `text-base font-semibold`
+- `text-sm text-muted-foreground` → `text-[13px] text-muted-foreground`
+- Quick stats `text-sm` → `text-[13px]`
+
+**`src/components/experiences/ExperienceCard.tsx`** (card non compatta)
+- `text-sm font-medium text-primary` association → `text-[11px] font-medium text-muted-foreground` (allineato a ExperienceCardCompact)
+- `text-xl font-semibold` titolo → `text-[13px] font-medium` (se usata in lista) oppure lasciare se è un componente "dettaglio espanso" — da verificare dove viene usata
+
+### GRUPPO B — Icone: colori metriche (Super Admin Dashboard)
+
+**`src/pages/super-admin/SuperAdminDashboard.tsx`**
+Aggiornare il mapping colori delle metriche per allinearlo al design system:
+- "Utenti": `text-bravo-magenta` / `bg-bravo-magenta/10` → `text-bravo-purple` / `bg-bravo-purple/10` (Persone = Viola)
+- "Esperienze": `text-bravo-pink` / `bg-bravo-pink/10` → `text-bravo-purple` / `bg-bravo-purple/10` (Calendar/Eventi = Viola)
+- "Prenotazioni" con `TrendingUp`: `text-bravo-orange` / `bg-bravo-orange/10` → `text-success` / `bg-success/10` (TrendingUp = Verde)
+- Le altre (Clock = arancione, Heart = rosa) sono già corrette ✅
+
+### GRUPPO C — Hover states colorati (design system violation)
+
+**`src/components/experiences/ExperienceCardCompact.tsx`**
+- `group-hover:text-primary` sul titolo → rimuovere (nessun cambio colore al hover)
+
+**`src/components/bookings/BookingCard.tsx`** (card future)
+- `group-hover:text-primary` sul titolo → rimuovere
+
+**`src/components/hr/HRExperienceCard.tsx`**
+- `group-hover/date:text-primary` sulla ChevronRight → `group-hover/date:text-muted-foreground`
+
+### GRUPPO D — N+1 fix residuo (AssociationDashboard)
+
+**`src/pages/association/AssociationDashboard.tsx`**
+- Sostituire il `Promise.all` con query batch usando `.in("experience_date_id", dateIds)` — stesso pattern già applicato a HRDashboard ed ExperienceDetailModal nel batch precedente.
+
+---
+
+## File modificati in totale
+
+```
+GRUPPO A (tipografia):
+├── src/components/common/EmptyState.tsx
+├── src/pages/Profile.tsx
+├── src/pages/hr/HRProfile.tsx
+├── src/components/hr/UpcomingEvents.tsx
+├── src/components/hr/SDGImpactGrid.tsx
+├── src/components/hr/HRExperienceCard.tsx
+└── src/components/experiences/ExperienceCard.tsx
+
+GRUPPO B (icone metriche):
+└── src/pages/super-admin/SuperAdminDashboard.tsx
+
+GRUPPO C (hover states):
+├── src/components/experiences/ExperienceCardCompact.tsx
+├── src/components/bookings/BookingCard.tsx
+└── src/components/hr/HRExperienceCard.tsx
+
+GRUPPO D (N+1 residuo):
+└── src/pages/association/AssociationDashboard.tsx
+```
+
+**Totale: 11 file.** Nessun cambio di logica, solo stile e query ottimizzazione. Rischio regressione minimo.
+
+---
+
+## Nota su ExperienceCard.tsx (non compatta)
+
+Questa card usa una scala tipografica più grande (`text-xl`, `text-sm`) che suggerisce un utilizzo come "card dettaglio" o vista desktop-first diversa dalla compact. Prima di modificarla drasticamente va verificato dove è usata nel routing: se è un componente legacy raramente utilizzato, la priorità è bassa.
