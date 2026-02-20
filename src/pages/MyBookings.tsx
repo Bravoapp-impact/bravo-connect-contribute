@@ -115,6 +115,7 @@ export default function MyBookings() {
         description: "La tua prenotazione è stata annullata con successo.",
       });
 
+      setSelectedBooking(null);
       fetchBookings();
     } catch (error: any) {
       toast({
