@@ -101,7 +101,28 @@ export default function Login() {
   const handleResendConfirmation = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsResending(true);
+    const genericSuccessToast = () => {
+      toast({
+        title: "Email inviata!",
+        description: "Se questa email è registrata nel sistema, riceverai il link di conferma. Controlla anche la cartella spam.",
+      });
+      setShowResend(false);
+      setResendEmail("");
+    };
     try {
+      // Privacy-safe check: verify email exists in profiles before sending
+      const { data: profileExists } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", resendEmail)
+        .maybeSingle();
+
+      if (!profileExists) {
+        // Show generic success toast to avoid revealing which emails are registered
+        genericSuccessToast();
+        return;
+      }
+
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: resendEmail,
@@ -110,12 +131,7 @@ export default function Login() {
         },
       });
       if (error) throw error;
-      toast({
-        title: "Email inviata!",
-        description: `Abbiamo reinviato l'email di conferma a ${resendEmail}. Controlla la tua casella (anche lo spam).`,
-      });
-      setShowResend(false);
-      setResendEmail("");
+      genericSuccessToast();
     } catch (error: any) {
       toast({
         variant: "destructive",
