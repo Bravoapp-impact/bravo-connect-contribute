@@ -1,40 +1,52 @@
-
 ## Obiettivo
 
-Impedire che il form "reinvia email di conferma" invii email a indirizzi non registrati nel sistema tramite codice di accesso.
+Aggiungere un punto di accesso alla vista dipendente (Esperienze, Prenotazioni, Impatto) per tutti e tre i ruoli admin, senza toccare i flussi esistenti o le route protette.
 
-## Approccio
+## Analisi
 
-Prima di chiamare `supabase.auth.resend()`, fare una query sulla tabella `profiles` per verificare che esista un utente con quell'email. Se non esiste, **non** inviare l'email.
+- Le route `/app/experiences`, `/app/bookings`, `/app/impact` usano `ProtectedRoute` che controlla solo l'autenticazione (non il ruolo), quindi gli admin possono già accedervi tecnicamente.
+- Il blocco è solo nell'assenza di un link/bottone nella UI admin.
+- Il modo più pulito e coerente con l'esistente è aggiungere una voce nel **dropdown menu utente** in fondo alla sidebar di `AdminLayout`, che già contiene "Il mio profilo" e "Esci".
 
-**Nota sulla privacy (security best practice):** Il messaggio mostrato all'utente sarà identico sia in caso di email trovata che non trovata ("Se questa email è registrata, riceverai il link di conferma"). Questo evita di rivelare quali email sono presenti nel sistema a chi tenta email a caso.
+## Soluzione
+
+Aggiungere una voce **"Esplora esperienze"** nel dropdown utente in fondo alla sidebar di `AdminLayout`, visibile per tutti e tre i ruoli admin. Un click naviga a `/app/experiences` nell'`AppLayout` standard (con la bottom navigation e il menu per mobile).
+
+### Perché il dropdown è la scelta giusta
+
+- Non occupa spazio nella sidebar principale (già abbastanza affollata per Super Admin).
+- È già il posto dove si trova "Il mio profilo" — logicamente coerente come area delle opzioni utente.
+- Non richiede nuovi componenti, solo una nuova `DropdownMenuItem`.
+- Su mobile, la sidebar si apre con il hamburger menu e il dropdown è raggiungibile facilmente.
 
 ## Modifica tecnica
 
-`src/pages/Login.tsx` — funzione `handleResendConfirmation`:
+**File:** `src/components/layout/AdminLayout.tsx`
+
+Nel `DropdownMenuContent`, aggiungere una nuova `DropdownMenuItem` con icona `LayoutGrid` (o `Sprout`) sopra al separatore già esistente:
 
 ```
-// Prima della chiamata a supabase.auth.resend():
-const { data: profileExists } = await supabase
-  .from("profiles")
-  .select("id")
-  .eq("email", resendEmail)
-  .maybeSingle();
-
-if (!profileExists) {
-  // Mostra stesso messaggio di successo (privacy)
-  toast({ title: "Email inviata!", description: "..." });
-  setShowResend(false);
-  setResendEmail("");
-  return;
-}
-
-// Solo se esiste → procedi con resend
-await supabase.auth.resend({ type: "signup", email: resendEmail, ... });
+<DropdownMenuItem
+  onClick={() => navigate("/app/experiences")}
+  className="cursor-pointer"
+>
+  <LayoutGrid className="mr-2 h-4 w-4" />
+  Esplora esperienze
+</DropdownMenuItem>
+<DropdownMenuSeparator />
 ```
 
-Il toast di successo mostrerà: *"Se questa email è registrata nel sistema, riceverai il link di conferma. Controlla anche la cartella spam."*
+Il risultato nel dropdown sarà:
+
+```
+┌─────────────────────────┐
+│ Il mio profilo          │
+│ Esplora esperienze      │
+├─────────────────────────┤
+│ Esci                    │
+└─────────────────────────┘
+```
 
 ## File modificati
 
-- `src/pages/Login.tsx` — solo la funzione `handleResendConfirmation` e il messaggio del toast
+- `src/components/layout/AdminLayout.tsx` — aggiunta di una `DropdownMenuItem` nel menu utente in fondo alla sidebar (un'unica modifica, si applica automaticamente a Super Admin, HR Admin e Association Admin).
