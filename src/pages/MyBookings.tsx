@@ -28,6 +28,7 @@ interface Booking {
       city: string | null;
       address: string | null;
       category: string | null;
+      participant_info?: string | null;
     };
   };
 }
@@ -64,6 +65,7 @@ export default function MyBookings() {
             city,
             address,
             category,
+            participant_info,
             associations:association_id (
               name,
               logo_url

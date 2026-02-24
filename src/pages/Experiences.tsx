@@ -53,6 +53,7 @@ export default function Experiences() {
         address: exp.address,
         category: exp.category,
         sdgs: exp.sdgs ?? [],
+        participant_info: exp.participant_info ?? null,
       })) as Experience[];
 
       if (baseExperiences.length === 0) {

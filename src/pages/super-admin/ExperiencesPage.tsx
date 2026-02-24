@@ -91,6 +91,7 @@ interface Experience {
   address: string | null;
   status: string;
   sdgs: string[] | null;
+  participant_info: string | null;
   secondary_tags: string[] | null;
   created_at: string;
   experience_dates?: ExperienceDate[];
@@ -165,6 +166,7 @@ export default function ExperiencesPage() {
     address: "",
     status: "draft",
     sdgs: [] as string[],
+    participant_info: "",
     secondary_tags: [] as string[],
   });
   const [saving, setSaving] = useState(false);
@@ -248,6 +250,7 @@ export default function ExperiencesPage() {
         address: experience.address || "",
         status: experience.status,
         sdgs: experience.sdgs || [],
+        participant_info: experience.participant_info || "",
         secondary_tags: experience.secondary_tags || [],
       });
       setSuggestedSdgs([]);
@@ -263,6 +266,7 @@ export default function ExperiencesPage() {
         address: "",
         status: "draft",
         sdgs: [],
+        participant_info: "",
         secondary_tags: [],
       });
       setSuggestedSdgs([]);
@@ -304,6 +308,7 @@ export default function ExperiencesPage() {
         address: formData.address || null,
         status: formData.status,
         sdgs: formData.sdgs.length > 0 ? formData.sdgs : null,
+        participant_info: formData.participant_info.trim() || null,
         secondary_tags: formData.secondary_tags.length > 0 ? formData.secondary_tags : null,
       };
 
@@ -790,6 +795,22 @@ export default function ExperiencesPage() {
                 placeholder="Descrizione dettagliata..."
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="participant_info">Informazioni per i partecipanti</Label>
+              <Textarea
+                id="participant_info"
+                value={formData.participant_info}
+                onChange={(e) =>
+                  setFormData({ ...formData, participant_info: e.target.value })
+                }
+                placeholder="Cosa portare, come vestirsi, dove trovarsi, indicazioni pratiche..."
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">
+                Queste informazioni saranno visibili ai partecipanti e incluse nell'email di promemoria
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

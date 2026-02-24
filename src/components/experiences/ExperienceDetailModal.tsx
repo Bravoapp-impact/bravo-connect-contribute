@@ -265,6 +265,18 @@ export function ExperienceDetailModal({
                 </div>
               )}
 
+              {/* Participant info */}
+              {experience.participant_info && (
+                <div className="pt-3 space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Informazioni per i partecipanti
+                  </p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-line">
+                    {experience.participant_info}
+                  </p>
+                </div>
+              )}
+
               {/* SDGs */}
               {experience.sdgs && experience.sdgs.length > 0 && (
                 <div className="pt-3 space-y-2">

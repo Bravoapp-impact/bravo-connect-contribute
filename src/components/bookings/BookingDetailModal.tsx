@@ -22,6 +22,7 @@ interface BookingDetailModalProps {
         city: string | null;
         address: string | null;
         category: string | null;
+        participant_info?: string | null;
       };
     };
   } | null;
@@ -241,18 +242,32 @@ export function BookingDetailModal({ booking, onClose, onCancel, isCancelling }:
 
             {/* Tips Section */}
             <div className="p-4 rounded-xl bg-muted/30 border border-border">
-              <div className="flex items-center gap-2 mb-3">
-                {tips.icon}
-                <h3 className="font-semibold">{tips.title}</h3>
-              </div>
-              <ul className="space-y-2">
-                {tips.tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <span className="text-primary mt-0.5">•</span>
-                    {tip}
-                  </li>
-                ))}
-              </ul>
+              {experience.participant_info ? (
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Info className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold">Informazioni utili</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground whitespace-pre-line">
+                    {experience.participant_info}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    {tips.icon}
+                    <h3 className="font-semibold">{tips.title}</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {tips.tips.map((tip, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span className="text-primary mt-0.5">•</span>
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           </div>
         </div>

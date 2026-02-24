@@ -113,7 +113,8 @@ serve(async (req: Request): Promise<Response> => {
           city,
           address,
           association_name,
-          category
+          category,
+          participant_info
         )
       `,
       )
@@ -235,6 +236,16 @@ serve(async (req: Request): Promise<Response> => {
         <p style="margin: 0;"><strong>🕐 Orario:</strong> ${formatTime(expDate.start_datetime)} - ${formatTime(expDate.end_datetime)}</p>
       </div>
       
+      ${
+        experience?.participant_info
+          ? `
+      <div style="background: #f3e8ff; padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #d8b4fe;">
+        <p style="margin: 0 0 8px 0;"><strong>📋 Informazioni utili:</strong></p>
+        <p style="margin: 0; white-space: pre-line;">${experience.participant_info}</p>
+      </div>
+      `
+          : ""
+      }
       ${
         experience?.city || experience?.address
           ? `
