@@ -1,0 +1,1 @@
+ALTER TABLE public.experiences ADD COLUMN participant_info text DEFAULT NULL;

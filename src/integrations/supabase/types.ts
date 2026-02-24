@@ -523,6 +523,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          participant_info: string | null
           sdgs: string[] | null
           secondary_tags: string[] | null
           status: string
@@ -540,6 +541,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          participant_info?: string | null
           sdgs?: string[] | null
           secondary_tags?: string[] | null
           status?: string
@@ -557,6 +559,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          participant_info?: string | null
           sdgs?: string[] | null
           secondary_tags?: string[] | null
           status?: string

@@ -22,5 +22,6 @@ export interface Experience {
   address: string | null;
   category: string | null;
   sdgs?: string[];
+  participant_info?: string | null;
   experience_dates?: ExperienceDate[];
 }
