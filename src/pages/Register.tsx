@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Building2, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Building2, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ export default function Register() {
   const [entityName, setEntityName] = useState<string | null>(null);
   const [isValidatingCode, setIsValidatingCode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [accessRequestModalOpen, setAccessRequestModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -201,14 +202,22 @@ export default function Register() {
               <Input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Minimo 8 caratteri"
                 value={formData.password}
                 onChange={handleChange}
-                className="pl-10"
+                className="pl-10 pr-10"
                 minLength={8}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
         </motion.div>
