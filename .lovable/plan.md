@@ -1,30 +1,41 @@
 
-# Aggiornamento colori email Bravo!
 
-## Colori ufficiali da applicare
-- **Highlight/accent**: `#8800FF` (viola Bravo!)
-- **Sfondo body**: `#FAFAFA` (bianco caldo)
+# Informazioni utili editabili per esperienza
 
-## Modifiche per file
+## Situazione attuale
+Le "Informazioni utili" che l'utente vede nel dettaglio prenotazione sono **generate automaticamente dal codice** in base alla categoria dell'esperienza (es. "ambiente" -> "Porta scarpe chiuse", "sociale" -> "Abbigliamento casual"). Non esiste un campo nel database per personalizzarle, quindi non compaiono nel form di creazione.
 
-### 1. `supabase/functions/send-booking-confirmation/index.ts`
+## Cosa cambia
 
-| Elemento | Prima | Dopo |
-|----------|-------|------|
-| Header gradient | `#7c3aed` / `#a855f7` | `#8800FF` / `#aa44ff` |
-| Header emoji | `Bravo! 🎉` | `Bravo!` |
-| Sfondo body email | `#f9fafb` | `#FAFAFA` |
-| Titolo esperienza | `color: #7c3aed` | `color: #8800FF` |
-| Box data/orario sfondo | `background: #f3f4f6` | `background: #f3e8ff; border: 1px solid #d8b4fe` |
+### 1. Nuovo campo nel database
+Aggiunta di una colonna `participant_info` (testo libero, opzionale) alla tabella `experiences`, dove il Super Admin o l'associazione possono scrivere indicazioni specifiche per i partecipanti.
 
-### 2. `supabase/functions/send-booking-reminders/index.ts`
+### 2. Form di creazione/modifica esperienza
+Un nuovo campo "Informazioni per i partecipanti" nel form del Super Admin (`ExperiencesPage.tsx`), con un textarea e un placeholder esplicativo (es. "Cosa portare, come vestirsi, dove trovarsi...").
 
-| Elemento | Prima | Dopo |
-|----------|-------|------|
-| Header gradient | `#f97316` / `#fb923c` (arancione) | `#8800FF` / `#aa44ff` |
-| Header testo | `⏰ Promemoria` | `Bravo!` + sottotitolo "Promemoria" |
-| Sfondo body email | `#f9fafb` | `#FAFAFA` |
-| Titolo esperienza | `color: #f97316` | `color: #8800FF` |
-| Box data/orario | `background: #fff7ed; border: #fed7aa` | `background: #f3e8ff; border: #d8b4fe` |
+### 3. Visualizzazione nel dettaglio prenotazione
+Nel `BookingDetailModal.tsx`, se l'esperienza ha un testo `participant_info` personalizzato, viene mostrato quello. Se il campo e' vuoto, restano i consigli generici basati sulla categoria (come ora).
 
-Le Edge Functions verranno deployate automaticamente dopo la modifica.
+### 4. Email di reminder
+Il template HTML nella Edge Function `send-booking-reminders` includera' una sezione "Informazioni utili" con il contenuto di `participant_info`, se presente. In questo modo il partecipante riceve le indicazioni pratiche direttamente nella mail il giorno prima.
+
+### 5. Propagazione del campo
+- Aggiornamento del tipo `Experience` centralizzato in `src/types/experiences.ts`
+- Aggiornamento delle query che caricano le esperienze per includere il nuovo campo dove necessario
+
+## Dettagli tecnici
+
+### Database migration
+```sql
+ALTER TABLE public.experiences 
+ADD COLUMN participant_info text DEFAULT NULL;
+```
+
+### File modificati
+- **`src/pages/super-admin/ExperiencesPage.tsx`** -- aggiunta campo `participant_info` a formData, payload di salvataggio e UI del form (textarea dopo descrizione)
+- **`src/types/experiences.ts`** -- aggiunta `participant_info?: string | null` all'interfaccia `Experience`
+- **`src/components/bookings/BookingDetailModal.tsx`** -- aggiunta `participant_info` all'interfaccia props; se presente, mostra il testo custom al posto dei tips generici
+- **`src/components/experiences/ExperienceDetailModal.tsx`** -- mostra `participant_info` nel dettaglio esperienza (se presente)
+- **`src/pages/Experiences.tsx`** -- includi `participant_info` nella query fetch
+- **`supabase/functions/send-booking-reminders/index.ts`** -- aggiunta sezione "Informazioni utili" nell'HTML dell'email se `participant_info` e' valorizzato; il campo viene letto tramite la join con `experiences`
+- **`src/pages/MyBookings.tsx`** -- propagazione del campo `participant_info` nella query delle prenotazioni per passarlo al BookingDetailModal
