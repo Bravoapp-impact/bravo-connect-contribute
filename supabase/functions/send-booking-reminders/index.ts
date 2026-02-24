@@ -216,21 +216,21 @@ serve(async (req: Request): Promise<Response> => {
   <title>Promemoria Esperienza</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">⏰ Promemoria</h1>
-    <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">La tua esperienza è domani!</p>
+  <div style="background: linear-gradient(135deg, #8800FF 0%, #aa44ff 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 28px;">Bravo!</h1>
+    <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Promemoria</p>
   </div>
   
-  <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
+  <div style="background: #FAFAFA; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
     <p style="white-space: pre-line; margin-bottom: 24px;">${introText}</p>
     
     <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; margin-bottom: 24px;">
-      <h2 style="margin: 0 0 16px 0; color: #f97316; font-size: 20px;">${experience?.title}</h2>
+      <h2 style="margin: 0 0 16px 0; color: #8800FF; font-size: 20px;">${experience?.title}</h2>
       
       ${experience?.category ? `<p style="margin: 0 0 12px 0;"><strong>Categoria:</strong> ${experience.category}</p>` : ""}
       ${experience?.association_name ? `<p style="margin: 0 0 12px 0;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ""}
       
-      <div style="background: #fff7ed; padding: 16px; border-radius: 8px; margin: 16px 0; border: 2px solid #fed7aa;">
+      <div style="background: #f3e8ff; padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #d8b4fe;">
         <p style="margin: 0 0 8px 0;"><strong>📅 Data:</strong> ${formatDate(expDate.start_datetime)}</p>
         <p style="margin: 0;"><strong>🕐 Orario:</strong> ${formatTime(expDate.start_datetime)} - ${formatTime(expDate.end_datetime)}</p>
       </div>
