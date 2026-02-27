@@ -216,54 +216,50 @@ serve(async (req: Request): Promise<Response> => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Promemoria Esperienza</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, #8800FF 0%, #aa44ff 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">Bravo!</h1>
-    <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Promemoria</p>
-  </div>
+<body style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #4F4F4F; max-width: 560px; margin: 0 auto; padding: 20px;">
+  <img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style="margin-bottom: 8px;" />
+  <h1 style="color: #373737; margin: 0 0 16px 0; font-size: 22px; font-weight: bold;">Promemoria</h1>
   
-  <div style="background: #FAFAFA; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
-    <p style="white-space: pre-line; margin-bottom: 24px;">${introText}</p>
+  <p style="white-space: pre-line; margin-bottom: 24px;">${introText}</p>
+  
+  <div style="background: white; border-radius: 8px; padding: 24px; border: 1px solid #CFCFCF; margin-bottom: 24px;">
+    <h2 style="margin: 0 0 16px 0; color: #373737; font-size: 18px;">${experience?.title}</h2>
     
-    <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; margin-bottom: 24px;">
-      <h2 style="margin: 0 0 16px 0; color: #8800FF; font-size: 20px;">${experience?.title}</h2>
-      
-      ${experience?.category ? `<p style="margin: 0 0 12px 0;"><strong>Categoria:</strong> ${experience.category}</p>` : ""}
-      ${experience?.association_name ? `<p style="margin: 0 0 12px 0;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ""}
-      
-      <div style="background: #f3e8ff; padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #d8b4fe;">
-        <p style="margin: 0 0 8px 0;"><strong>📅 Data:</strong> ${formatDate(expDate.start_datetime)}</p>
-        <p style="margin: 0;"><strong>🕐 Orario:</strong> ${formatTime(expDate.start_datetime)} - ${formatTime(expDate.end_datetime)}</p>
-      </div>
-      
-      ${
-        experience?.participant_info
-          ? `
-      <div style="background: #f3e8ff; padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #d8b4fe;">
-        <p style="margin: 0 0 8px 0;"><strong>📋 Informazioni utili:</strong></p>
-        <p style="margin: 0; white-space: pre-line;">${experience.participant_info}</p>
-      </div>
-      `
-          : ""
-      }
-      ${
-        experience?.city || experience?.address
-          ? `
-      <div style="margin-top: 16px;">
-        <p style="margin: 0;"><strong>📍 Luogo:</strong></p>
-        ${experience.city ? `<p style="margin: 4px 0 0 0;">${experience.city}</p>` : ""}
-        ${experience.address ? `<p style="margin: 4px 0 0 0; color: #666;">${experience.address}</p>` : ""}
-      </div>
-      `
-          : ""
-      }
+    ${experience?.category ? `<p style="margin: 0 0 12px 0; color: #4F4F4F;"><strong>Categoria:</strong> ${experience.category}</p>` : ""}
+    ${experience?.association_name ? `<p style="margin: 0 0 12px 0; color: #4F4F4F;"><strong>Associazione:</strong> ${experience.association_name}</p>` : ""}
+    
+    <div style="padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #CFCFCF;">
+      <p style="margin: 0 0 8px 0; color: #4F4F4F;"><strong>📅 Data:</strong> ${formatDate(expDate.start_datetime)}</p>
+      <p style="margin: 0; color: #4F4F4F;"><strong>🕐 Orario:</strong> ${formatTime(expDate.start_datetime)} - ${formatTime(expDate.end_datetime)}</p>
     </div>
     
-    <p style="white-space: pre-line; margin-bottom: 0;">${closingText}</p>
+    ${
+      experience?.participant_info
+        ? `
+    <div style="padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #CFCFCF;">
+      <p style="margin: 0 0 8px 0; color: #4F4F4F;"><strong>📋 Informazioni utili:</strong></p>
+      <p style="margin: 0; white-space: pre-line; color: #4F4F4F;">${experience.participant_info}</p>
+    </div>
+    `
+        : ""
+    }
+    ${
+      experience?.city || experience?.address
+        ? `
+    <div style="margin-top: 16px;">
+      <p style="margin: 0; color: #4F4F4F;"><strong>📍 Luogo:</strong></p>
+      ${experience.city ? `<p style="margin: 4px 0 0 0; color: #4F4F4F;">${experience.city}</p>` : ""}
+      ${experience.address ? `<p style="margin: 4px 0 0 0; color: #999;">${experience.address}</p>` : ""}
+    </div>
+    `
+        : ""
+    }
   </div>
   
-  <div style="background: #1f2937; padding: 20px; border-radius: 0 0 16px 16px; text-align: center;">
-    <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 12px;">
+  <p style="white-space: pre-line; margin-bottom: 24px;">${closingText}</p>
+  
+  <div style="border-top: 1px solid #e5e5e5; padding-top: 16px;">
+    <p style="color: #999; margin: 0; font-size: 12px;">
       Questa email è stata inviata automaticamente da Bravo! - La piattaforma per il volontariato aziendale
     </p>
   </div>
