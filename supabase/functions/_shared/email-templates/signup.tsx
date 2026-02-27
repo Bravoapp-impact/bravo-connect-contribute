@@ -34,7 +34,7 @@ export const SignupEmail = ({
     <Preview>Conferma il tuo account Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" height="28" style={logo} />
         <Heading style={h1}>Benvenuto in Bravo!</Heading>
         <Text style={text}>
           Grazie per esserti registrato. Conferma il tuo indirizzo email (

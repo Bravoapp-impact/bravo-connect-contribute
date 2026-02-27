@@ -32,7 +32,7 @@ export const InviteEmail = ({
     <Preview>Sei stato invitato su Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" height="28" style={logo} />
         <Heading style={h1}>Sei stato invitato!</Heading>
         <Text style={text}>
           Sei stato invitato a unirti a{' '}
