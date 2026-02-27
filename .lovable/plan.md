@@ -1,68 +1,41 @@
+# Aggiornamento Design System e Email Templates
+
+## Cosa cambia
+
+### 1. Colori testo globali (`src/index.css`)
+
+- `--foreground`: da `0 0% 10%` (#1a1a1a) a `0 0% 22%` (#373737) -- titoli
+- `--muted-foreground`: da `0 0% 45%` (#737373) a `0 0% 31%` (#4F4F4F) -- testo normale
+- `--card-foreground`: allineato a `0 0% 22%` (#373737)
+- Stesso aggiornamento proporzionale per il tema dark
+
+### 2. Bordo card e shadow (`src/index.css` + `src/components/ui/card.tsx`)
+
+- `--border`: da `0 0% 90%` a `0 0% 81%` (#CFCFCF)
+- Shadow realistica sulla Card base: traduzione dei parametri Framer (Realistic, Outside, #000 25%, X:0, Y:5, Diffusion 0.2, Focus 0.3) in CSS multi-layer: `0 1px 3px rgba(0,0,0,0.04), 0 5px 15px rgba(0,0,0,0.06)`
+- Il componente `Card` in `card.tsx` sostituisce `shadow-sm` con la nuova shadow custom
+
+### 3. Email Auth (6 template in `supabase/functions/_shared/email-templates/`)
+
+Modifiche applicate a tutti e 6 i template (signup, recovery, magic-link, invite, email-change, reauthentication):
+
+- **Logo piccolo** in alto a sinistra: immagine da `bravo-icon.png` caricata nel bucket `email-assets`, dimensione ~28px
+- **Bottone Airbnb-style**: da `#8800FF` viola a `#222222` nero, font 14px, border-radius 8px, padding ridotto
+- **Colori testo**: h1 `#373737`, body `#4F4F4F`, link `#373737` (underline), footer `#999`
+- **Rimozione grassetti vivaci** nel codice di verifica: da `#8800FF` a `#373737`
+
+### 4. Email Transazionali (2 Edge Functions)
+
+- `**send-booking-confirmation/index.ts**`: rimozione header viola gradient, adozione stile minimale con logo piccolo, bottone nero, colori #373737/#4F4F4F, rimozione sfondo viola (#f3e8ff) dalle info-box sostituito con bordo #CFCFCF
+- `**send-booking-reminders/index.ts**`: stesse modifiche del confirmation, inclusa la sezione participant_info
+
+### 5. File modificati
 
 
-# Miglioramento UX registrazione e email di autenticazione
-
-Ci sono tre problemi da risolvere. Li analizzo uno per uno.
-
----
-
-## 1. Pagina di conferma post-registrazione
-
-**Problema**: Dopo la registrazione, l'utente vede solo un toast in basso a destra (facilmente ignorabile) e viene reindirizzato a una pagina che non puo' usare senza aver verificato l'email.
-
-**Soluzione**: Invece di navigare verso la dashboard, mostrare una **pagina dedicata di conferma** con istruzioni chiare: icona email, messaggio prominente "Controlla la tua casella email", indicazione di controllare lo spam, e bottone per reinviare l'email.
-
-### Modifiche
-- **`src/pages/Register.tsx`**: Dopo `signUp` riuscito, invece di `navigate(...)`, impostare uno stato `registrationComplete = true` e mostrare una schermata di conferma a pagina intera (simile al pattern gia' usato in `ForgotPassword.tsx` con `emailSent`). Include:
-  - Icona Mail grande
-  - Titolo "Controlla la tua email"
-  - Testo "Abbiamo inviato un link di attivazione a **{email}**. Clicca il link per completare la registrazione."
-  - Nota "Non trovi l'email? Controlla la cartella spam"
-  - Bottone "Reinvia email di conferma" (usa `supabase.auth.resend`)
-  - Link "Torna al login"
-
----
-
-## 2. Email di autenticazione in italiano e brandizzate
-
-**Problema**: Le email di sistema (conferma registrazione, reset password) arrivano in inglese con lo stile predefinito.
-
-**Soluzione**: Configurare email personalizzate in italiano con branding Bravo!. Per farlo serve prima configurare un dominio email nel workspace.
-
-Il progetto ha un dominio custom (`experiences.bravoapp.it`) ma non ha ancora un dominio email configurato. Il primo passo e' configurarlo tramite il pannello email, dopodiche' possiamo creare i template personalizzati in italiano.
-
-**Questa parte richiede un'azione da parte tua**: dovrai configurare il dominio email dal pannello che ti mostrero'. Una volta fatto, procedero' a creare i template in italiano con i colori Bravo!.
-
----
-
-## 3. Recupero password per email non registrate
-
-**Problema**: Utenti non ancora registrati provano "Password dimenticata" e non ricevono feedback utile.
-
-**Implicazione di sicurezza**: Dire esplicitamente "questa email non e' registrata" permette a un attaccante di enumerare gli utenti della piattaforma (provare email a caso per scoprire chi e' iscritto). E' un rischio noto chiamato **user enumeration**.
-
-**Soluzione raccomandata** (compromesso sicurezza/usabilita'): Non rivelare se l'email esiste, ma aggiungere un messaggio che guida l'utente. Nella pagina di conferma "Controlla la tua email" del forgot password, aggiungere un testo chiaro:
-
-> "Se l'indirizzo email e' associato a un account, riceverai il link entro pochi minuti. Se non ricevi nulla, potresti non essere ancora registrato."
-
-E aggiungere un **link "Non hai un account? Registrati"** ben visibile nella pagina di conferma.
-
-Questo approccio:
-- Non rivela se l'email esiste (sicurezza preservata)
-- Guida gentilmente l'utente boomer verso la registrazione se ha sbagliato percorso
-- Non richiede logica server-side aggiuntiva
-
-### Modifiche
-- **`src/pages/ForgotPassword.tsx`**: Nella sezione `emailSent`, modificare il testo per includere il suggerimento "potresti non essere ancora registrato" e aggiungere un link a `/register`.
-
----
-
-## Riepilogo file modificati
-
-| File | Cosa cambia |
-|------|-------------|
-| `src/pages/Register.tsx` | Pagina di conferma post-registrazione con istruzioni chiare e reinvio email |
-| `src/pages/ForgotPassword.tsx` | Testo piu' chiaro + link a registrazione nella conferma |
-
-Per le email in italiano, servira' prima configurare il dominio email (te lo mostro dopo l'implementazione delle modifiche sopra).
-
+| File                                 | Modifica                                              |
+| ------------------------------------ | ----------------------------------------------------- |
+| `src/index.css`                      | Variabili colore foreground, muted-foreground, border |
+| `src/components/ui/card.tsx`         | Shadow realistica                                     |
+| 6 template in `email-templates/`     | Logo, bottone nero, colori aggiornati                 |
+| `send-booking-confirmation/index.ts` | HTML email redesign                                   |
+| `send-booking-reminders/index.ts`    | HTML email redesign                                   |
