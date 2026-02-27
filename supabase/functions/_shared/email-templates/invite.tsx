@@ -9,7 +9,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -32,9 +31,6 @@ export const InviteEmail = ({
     <Preview>Sei stato invitato su Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}>
-          <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo.png" alt="Bravo!" height="40" style={logo} />
-        </Section>
         <Heading style={h1}>Sei stato invitato!</Heading>
         <Text style={text}>
           Sei stato invitato a unirti a{' '}
@@ -66,8 +62,6 @@ export default InviteEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Plus Jakarta Sans', Arial, sans-serif" }
 const container = { padding: '0', maxWidth: '560px', margin: '0 auto' }
-const header = { backgroundColor: '#8800FF', padding: '24px 32px', borderRadius: '12px 12px 0 0', textAlign: 'center' as const }
-const logo = { margin: '0 auto' }
 const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#1a1a1a', margin: '24px 32px 16px', padding: '0' }
 const text = { fontSize: '15px', color: '#737373', lineHeight: '1.6', margin: '0 32px 24px' }
 const link = { color: '#8800FF', textDecoration: 'underline' }
