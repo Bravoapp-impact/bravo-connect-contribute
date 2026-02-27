@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Clock, Users, Award, TrendingUp, Sprout } from "lucide-react";
+import { Clock, Users, Award, TrendingUp, Sprout, MessageSquare } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getSDGInfo } from "@/lib/sdg-data";
 import { devLog } from "@/lib/logger";
+import { useNavigate } from "react-router-dom";
 
 interface ImpactStats {
   completedExperiences: number;
@@ -18,14 +19,49 @@ interface ImpactStats {
 
 export default function Impact() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<ImpactStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
 
   useEffect(() => {
     if (user) {
       fetchImpactStats();
+      fetchPendingFeedback();
     }
   }, [user]);
+
+  const fetchPendingFeedback = async () => {
+    try {
+      // Get past confirmed bookings
+      const { data: bookings } = await supabase
+        .from("bookings")
+        .select("id, experience_dates(start_datetime)")
+        .eq("user_id", user?.id)
+        .eq("status", "confirmed");
+
+      const pastBookingIds = (bookings || [])
+        .filter((b: any) => new Date(b.experience_dates?.start_datetime) < new Date())
+        .map((b: any) => b.id);
+
+      if (pastBookingIds.length === 0) {
+        setPendingFeedbackCount(0);
+        return;
+      }
+
+      // Check which have reviews
+      const { data: reviews } = await supabase
+        .from("experience_reviews" as any)
+        .select("booking_id")
+        .in("booking_id", pastBookingIds)
+        .returns<{ booking_id: string }[]>();
+
+      const reviewedIds = new Set((reviews || []).map((r) => r.booking_id));
+      setPendingFeedbackCount(pastBookingIds.filter((id: string) => !reviewedIds.has(id)).length);
+    } catch (error) {
+      devLog.error("Error fetching pending feedback:", error);
+    }
+  };
 
   const fetchImpactStats = async () => {
     try {
@@ -133,6 +169,26 @@ export default function Impact() {
             Il contributo che stai dando al mondo
           </motion.p>
         </div>
+
+        {/* Feedback Banner */}
+        {pendingFeedbackCount > 0 && (
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => navigate("/app/bookings")}
+            className="w-full flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20 text-left hover:bg-primary/15 transition-colors"
+          >
+            <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                Hai {pendingFeedbackCount} {pendingFeedbackCount === 1 ? "esperienza" : "esperienze"} da valutare
+              </p>
+              <p className="text-[12px] text-muted-foreground">
+                Il tuo feedback ci aiuta a migliorare 💜
+              </p>
+            </div>
+          </motion.button>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">

@@ -28,8 +28,10 @@ interface BookingCardProps {
   };
   index: number;
   isPast?: boolean;
+  hasReview?: boolean;
   onCancel: (bookingId: string) => void;
   onView: (booking: any) => void;
+  onFeedback?: (booking: any) => void;
   isCancelling?: boolean;
 }
 
@@ -37,7 +39,9 @@ export function BookingCard({
   booking,
   index,
   isPast = false,
+  hasReview = false,
   onView,
+  onFeedback,
 }: BookingCardProps) {
   const experience = booking.experience_dates.experiences;
   const startDate = new Date(booking.experience_dates.start_datetime);
@@ -78,11 +82,21 @@ export function BookingCard({
             {format(startDate, "d MMMM yyyy", { locale: it })}
           </p>
         </div>
-        {booking.status === "cancelled" && (
+        {booking.status === "cancelled" ? (
           <Badge variant="secondary" className="text-xs">
             Annullata
           </Badge>
-        )}
+        ) : !hasReview && onFeedback ? (
+          <Badge
+            className="text-xs cursor-pointer bg-primary/10 text-primary border-primary/20 hover:bg-primary/20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onFeedback(booking);
+            }}
+          >
+            Lascia feedback
+          </Badge>
+        ) : null}
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </motion.div>
     );

@@ -4,6 +4,7 @@ import { Calendar, Loader2, ChevronDown } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BookingCard } from "@/components/bookings/BookingCard";
 import { BookingDetailModal } from "@/components/bookings/BookingDetailModal";
+import { FeedbackModal } from "@/components/bookings/FeedbackModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +42,8 @@ export default function MyBookings() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
+  const [feedbackBooking, setFeedbackBooking] = useState<Booking | null>(null);
 
   const fetchBookings = async () => {
     if (!user) return;
@@ -77,7 +80,6 @@ export default function MyBookings() {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      // Transform data to include association_logo_url
       const transformedBookings = data.map((booking: any) => ({
         ...booking,
         experience_dates: {
@@ -97,8 +99,22 @@ export default function MyBookings() {
     setLoading(false);
   };
 
+  const fetchReviews = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from("experience_reviews" as any)
+      .select("booking_id")
+      .returns<{ booking_id: string }[]>();
+
+    if (data) {
+      setReviewedBookingIds(new Set(data.map((r) => r.booking_id)));
+    }
+  };
+
   useEffect(() => {
     fetchBookings();
+    fetchReviews();
   }, [user]);
 
   const handleCancel = async (bookingId: string) => {
@@ -130,6 +146,11 @@ export default function MyBookings() {
     }
   };
 
+  const handleFeedbackSubmitted = () => {
+    setFeedbackBooking(null);
+    fetchReviews();
+  };
+
   // Split bookings into future and past
   const futureBookings = bookings.filter(
     (b) => !isPast(new Date(b.experience_dates.start_datetime)) && b.status === "confirmed"
@@ -137,6 +158,11 @@ export default function MyBookings() {
   const pastBookings = bookings.filter(
     (b) => isPast(new Date(b.experience_dates.start_datetime)) || b.status === "cancelled"
   );
+
+  // Count past confirmed bookings without reviews
+  const pendingFeedbackCount = pastBookings.filter(
+    (b) => b.status === "confirmed" && !reviewedBookingIds.has(b.id)
+  ).length;
 
   return (
     <AppLayout>
@@ -225,6 +251,11 @@ export default function MyBookings() {
                 <span className="text-sm text-muted-foreground">
                   ({pastBookings.length})
                 </span>
+                {pendingFeedbackCount > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                    {pendingFeedbackCount}
+                  </span>
+                )}
               </button>
               
               <AnimatePresence initial={false}>
@@ -243,8 +274,10 @@ export default function MyBookings() {
                           booking={booking}
                           index={index}
                           isPast
+                          hasReview={reviewedBookingIds.has(booking.id)}
                           onCancel={handleCancel}
                           onView={setSelectedBooking}
+                          onFeedback={booking.status === "confirmed" ? setFeedbackBooking : undefined}
                         />
                       ))}
                     </div>
@@ -262,6 +295,14 @@ export default function MyBookings() {
         onClose={() => setSelectedBooking(null)}
         onCancel={handleCancel}
         isCancelling={!!cancellingId}
+      />
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        open={!!feedbackBooking}
+        onClose={() => setFeedbackBooking(null)}
+        onSubmitted={handleFeedbackSubmitted}
+        booking={feedbackBooking}
       />
     </AppLayout>
   );
