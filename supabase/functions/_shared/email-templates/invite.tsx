@@ -9,6 +9,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -31,6 +32,7 @@ export const InviteEmail = ({
     <Preview>Sei stato invitato su Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
         <Heading style={h1}>Sei stato invitato!</Heading>
         <Text style={text}>
           Sei stato invitato a unirti a{' '}
@@ -62,11 +64,12 @@ export default InviteEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Plus Jakarta Sans', Arial, sans-serif" }
 const container = { padding: '0', maxWidth: '560px', margin: '0 auto' }
-const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#1a1a1a', margin: '24px 32px 16px', padding: '0' }
-const text = { fontSize: '15px', color: '#737373', lineHeight: '1.6', margin: '0 32px 24px' }
-const link = { color: '#8800FF', textDecoration: 'underline' }
+const logo = { margin: '24px 0 0 32px' }
+const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#373737', margin: '16px 32px 16px', padding: '0' }
+const text = { fontSize: '15px', color: '#4F4F4F', lineHeight: '1.6', margin: '0 32px 24px' }
+const link = { color: '#373737', textDecoration: 'underline' }
 const buttonContainer = { textAlign: 'center' as const, margin: '0 32px 24px' }
-const button = { backgroundColor: '#8800FF', color: '#ffffff', fontSize: '15px', fontWeight: '600' as const, borderRadius: '12px', padding: '14px 28px', textDecoration: 'none' }
+const button = { backgroundColor: '#222222', color: '#ffffff', fontSize: '14px', fontWeight: '600' as const, borderRadius: '8px', padding: '12px 24px', textDecoration: 'none' }
 const hint = { fontSize: '12px', color: '#999999', margin: '0 32px 8px' }
 const urlText = { fontSize: '12px', color: '#999999', margin: '0 32px 24px', wordBreak: 'break-all' as const }
 const footer = { fontSize: '12px', color: '#999999', margin: '0 32px 32px', borderTop: '1px solid #e5e5e5', paddingTop: '16px' }

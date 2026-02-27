@@ -10,10 +10,10 @@
   :root {
     /* Background neutri - #FAFAFA */
     --background: 0 0% 98%;
-    --foreground: 0 0% 10%;
+    --foreground: 0 0% 22%;
     
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 22%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
@@ -31,7 +31,7 @@
     --accent-foreground: 0 0% 10%;
     
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 31%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -42,8 +42,8 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 10%;
     
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 81%;
+    --input: 0 0% 81%;
     --ring: 0 0% 20%;
     
     --radius: 0.75rem;

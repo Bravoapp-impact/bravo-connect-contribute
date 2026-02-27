@@ -8,6 +8,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Section,
   Text,
@@ -23,6 +24,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
     <Preview>Il tuo codice di verifica Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
         <Heading style={h1}>Codice di verifica</Heading>
         <Text style={text}>Usa il codice qui sotto per confermare la tua identità:</Text>
         <Text style={codeStyle}>{token}</Text>
@@ -38,7 +40,8 @@ export default ReauthenticationEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Plus Jakarta Sans', Arial, sans-serif" }
 const container = { padding: '0', maxWidth: '560px', margin: '0 auto' }
-const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#1a1a1a', margin: '24px 32px 16px', padding: '0' }
-const text = { fontSize: '15px', color: '#737373', lineHeight: '1.6', margin: '0 32px 24px' }
-const codeStyle = { fontFamily: "'Plus Jakarta Sans', Courier, monospace", fontSize: '28px', fontWeight: 'bold' as const, color: '#8800FF', margin: '0 32px 30px', textAlign: 'center' as const, letterSpacing: '4px' }
+const logo = { margin: '24px 0 0 32px' }
+const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#373737', margin: '16px 32px 16px', padding: '0' }
+const text = { fontSize: '15px', color: '#4F4F4F', lineHeight: '1.6', margin: '0 32px 24px' }
+const codeStyle = { fontFamily: "'Plus Jakarta Sans', Courier, monospace", fontSize: '28px', fontWeight: 'bold' as const, color: '#373737', margin: '0 32px 30px', textAlign: 'center' as const, letterSpacing: '4px' }
 const footer = { fontSize: '12px', color: '#999999', margin: '0 32px 32px', borderTop: '1px solid #e5e5e5', paddingTop: '16px' }
