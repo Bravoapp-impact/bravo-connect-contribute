@@ -1,41 +1,68 @@
 
 
-# Informazioni utili editabili per esperienza
+# Miglioramento UX registrazione e email di autenticazione
 
-## Situazione attuale
-Le "Informazioni utili" che l'utente vede nel dettaglio prenotazione sono **generate automaticamente dal codice** in base alla categoria dell'esperienza (es. "ambiente" -> "Porta scarpe chiuse", "sociale" -> "Abbigliamento casual"). Non esiste un campo nel database per personalizzarle, quindi non compaiono nel form di creazione.
+Ci sono tre problemi da risolvere. Li analizzo uno per uno.
 
-## Cosa cambia
+---
 
-### 1. Nuovo campo nel database
-Aggiunta di una colonna `participant_info` (testo libero, opzionale) alla tabella `experiences`, dove il Super Admin o l'associazione possono scrivere indicazioni specifiche per i partecipanti.
+## 1. Pagina di conferma post-registrazione
 
-### 2. Form di creazione/modifica esperienza
-Un nuovo campo "Informazioni per i partecipanti" nel form del Super Admin (`ExperiencesPage.tsx`), con un textarea e un placeholder esplicativo (es. "Cosa portare, come vestirsi, dove trovarsi...").
+**Problema**: Dopo la registrazione, l'utente vede solo un toast in basso a destra (facilmente ignorabile) e viene reindirizzato a una pagina che non puo' usare senza aver verificato l'email.
 
-### 3. Visualizzazione nel dettaglio prenotazione
-Nel `BookingDetailModal.tsx`, se l'esperienza ha un testo `participant_info` personalizzato, viene mostrato quello. Se il campo e' vuoto, restano i consigli generici basati sulla categoria (come ora).
+**Soluzione**: Invece di navigare verso la dashboard, mostrare una **pagina dedicata di conferma** con istruzioni chiare: icona email, messaggio prominente "Controlla la tua casella email", indicazione di controllare lo spam, e bottone per reinviare l'email.
 
-### 4. Email di reminder
-Il template HTML nella Edge Function `send-booking-reminders` includera' una sezione "Informazioni utili" con il contenuto di `participant_info`, se presente. In questo modo il partecipante riceve le indicazioni pratiche direttamente nella mail il giorno prima.
+### Modifiche
+- **`src/pages/Register.tsx`**: Dopo `signUp` riuscito, invece di `navigate(...)`, impostare uno stato `registrationComplete = true` e mostrare una schermata di conferma a pagina intera (simile al pattern gia' usato in `ForgotPassword.tsx` con `emailSent`). Include:
+  - Icona Mail grande
+  - Titolo "Controlla la tua email"
+  - Testo "Abbiamo inviato un link di attivazione a **{email}**. Clicca il link per completare la registrazione."
+  - Nota "Non trovi l'email? Controlla la cartella spam"
+  - Bottone "Reinvia email di conferma" (usa `supabase.auth.resend`)
+  - Link "Torna al login"
 
-### 5. Propagazione del campo
-- Aggiornamento del tipo `Experience` centralizzato in `src/types/experiences.ts`
-- Aggiornamento delle query che caricano le esperienze per includere il nuovo campo dove necessario
+---
 
-## Dettagli tecnici
+## 2. Email di autenticazione in italiano e brandizzate
 
-### Database migration
-```sql
-ALTER TABLE public.experiences 
-ADD COLUMN participant_info text DEFAULT NULL;
-```
+**Problema**: Le email di sistema (conferma registrazione, reset password) arrivano in inglese con lo stile predefinito.
 
-### File modificati
-- **`src/pages/super-admin/ExperiencesPage.tsx`** -- aggiunta campo `participant_info` a formData, payload di salvataggio e UI del form (textarea dopo descrizione)
-- **`src/types/experiences.ts`** -- aggiunta `participant_info?: string | null` all'interfaccia `Experience`
-- **`src/components/bookings/BookingDetailModal.tsx`** -- aggiunta `participant_info` all'interfaccia props; se presente, mostra il testo custom al posto dei tips generici
-- **`src/components/experiences/ExperienceDetailModal.tsx`** -- mostra `participant_info` nel dettaglio esperienza (se presente)
-- **`src/pages/Experiences.tsx`** -- includi `participant_info` nella query fetch
-- **`supabase/functions/send-booking-reminders/index.ts`** -- aggiunta sezione "Informazioni utili" nell'HTML dell'email se `participant_info` e' valorizzato; il campo viene letto tramite la join con `experiences`
-- **`src/pages/MyBookings.tsx`** -- propagazione del campo `participant_info` nella query delle prenotazioni per passarlo al BookingDetailModal
+**Soluzione**: Configurare email personalizzate in italiano con branding Bravo!. Per farlo serve prima configurare un dominio email nel workspace.
+
+Il progetto ha un dominio custom (`experiences.bravoapp.it`) ma non ha ancora un dominio email configurato. Il primo passo e' configurarlo tramite il pannello email, dopodiche' possiamo creare i template personalizzati in italiano.
+
+**Questa parte richiede un'azione da parte tua**: dovrai configurare il dominio email dal pannello che ti mostrero'. Una volta fatto, procedero' a creare i template in italiano con i colori Bravo!.
+
+---
+
+## 3. Recupero password per email non registrate
+
+**Problema**: Utenti non ancora registrati provano "Password dimenticata" e non ricevono feedback utile.
+
+**Implicazione di sicurezza**: Dire esplicitamente "questa email non e' registrata" permette a un attaccante di enumerare gli utenti della piattaforma (provare email a caso per scoprire chi e' iscritto). E' un rischio noto chiamato **user enumeration**.
+
+**Soluzione raccomandata** (compromesso sicurezza/usabilita'): Non rivelare se l'email esiste, ma aggiungere un messaggio che guida l'utente. Nella pagina di conferma "Controlla la tua email" del forgot password, aggiungere un testo chiaro:
+
+> "Se l'indirizzo email e' associato a un account, riceverai il link entro pochi minuti. Se non ricevi nulla, potresti non essere ancora registrato."
+
+E aggiungere un **link "Non hai un account? Registrati"** ben visibile nella pagina di conferma.
+
+Questo approccio:
+- Non rivela se l'email esiste (sicurezza preservata)
+- Guida gentilmente l'utente boomer verso la registrazione se ha sbagliato percorso
+- Non richiede logica server-side aggiuntiva
+
+### Modifiche
+- **`src/pages/ForgotPassword.tsx`**: Nella sezione `emailSent`, modificare il testo per includere il suggerimento "potresti non essere ancora registrato" e aggiungere un link a `/register`.
+
+---
+
+## Riepilogo file modificati
+
+| File | Cosa cambia |
+|------|-------------|
+| `src/pages/Register.tsx` | Pagina di conferma post-registrazione con istruzioni chiare e reinvio email |
+| `src/pages/ForgotPassword.tsx` | Testo piu' chiaro + link a registrazione nella conferma |
+
+Per le email in italiano, servira' prima configurare il dominio email (te lo mostro dopo l'implementazione delle modifiche sopra).
+
