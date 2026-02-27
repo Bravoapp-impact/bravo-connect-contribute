@@ -24,7 +24,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
     <Preview>Il tuo codice di verifica Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" height="28" style={logo} />
         <Heading style={h1}>Codice di verifica</Heading>
         <Text style={text}>Usa il codice qui sotto per confermare la tua identità:</Text>
         <Text style={codeStyle}>{token}</Text>
