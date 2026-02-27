@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Building2, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, Building2, Loader2, ArrowRight, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AccessRequestModal } from "@/components/auth/AccessRequestModal";
 import { signUp, validateAccessCode } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Register() {
@@ -23,6 +24,8 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [accessRequestModalOpen, setAccessRequestModalOpen] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -30,7 +33,6 @@ export default function Register() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Reset entity validation when code changes
     if (name === "accessCode") {
       setEntityName(null);
     }
@@ -54,12 +56,35 @@ export default function Register() {
     }
   };
 
+  const handleResendConfirmation = async () => {
+    setIsResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: formData.email,
+      });
+      if (error) throw error;
+      toast({
+        title: "Email reinviata ✉️",
+        description: "Controlla la tua casella email, inclusa la cartella spam.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: error.message || "Impossibile reinviare l'email. Riprova tra qualche minuto.",
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const result = await signUp({
+      await signUp({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -67,19 +92,7 @@ export default function Register() {
         accessCode: formData.accessCode,
       });
 
-      toast({
-        title: "Registrazione completata! 🎉",
-        description: `Abbiamo inviato un'email di conferma a ${formData.email}. Clicca il link nell'email per attivare il tuo account e accedere.`,
-      });
-
-      // Redirect based on role
-      if (result.role === 'hr_admin') {
-        navigate("/hr");
-      } else if (result.role === 'association_admin') {
-        navigate("/association"); // TODO: create this route
-      } else {
-        navigate("/app/experiences");
-      }
+      setRegistrationComplete(true);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -90,6 +103,72 @@ export default function Register() {
       setIsLoading(false);
     }
   };
+
+  if (registrationComplete) {
+    return (
+      <AuthLayout
+        title="Controlla la tua email"
+        subtitle="Un ultimo passo per completare la registrazione"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-6"
+        >
+          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <Mail className="h-8 w-8 text-primary" />
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-foreground">
+              Abbiamo inviato un link di attivazione a{" "}
+              <strong>{formData.email}</strong>.
+            </p>
+            <p className="text-foreground">
+              Clicca il link nell'email per completare la registrazione e accedere alla piattaforma.
+            </p>
+          </div>
+
+          <div className="bg-muted rounded-lg p-4 text-sm text-muted-foreground space-y-2">
+            <p className="font-medium text-foreground">Non trovi l'email?</p>
+            <ul className="list-disc list-inside text-left space-y-1">
+              <li>Controlla la cartella <strong>spam</strong> o <strong>posta indesiderata</strong></li>
+              <li>Assicurati di aver inserito l'email corretta</li>
+              <li>L'email potrebbe impiegare qualche minuto ad arrivare</li>
+            </ul>
+          </div>
+
+          <Button
+            onClick={handleResendConfirmation}
+            variant="outline"
+            className="w-full"
+            disabled={isResending}
+          >
+            {isResending ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Mail className="h-4 w-4 mr-2" />
+            )}
+            Reinvia email di conferma
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6"
+        >
+          <Link to="/login">
+            <Button variant="ghost" className="w-full">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Torna al login
+            </Button>
+          </Link>
+        </motion.div>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout

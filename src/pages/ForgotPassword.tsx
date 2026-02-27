@@ -53,16 +53,26 @@ export default function ForgotPassword() {
           </div>
           
           <p className="text-muted-foreground">
-            Abbiamo inviato un'email a <strong className="text-foreground">{email}</strong> con le istruzioni per reimpostare la password.
+            Se l'indirizzo <strong className="text-foreground">{email}</strong> è associato a un account, riceverai il link per reimpostare la password entro pochi minuti.
           </p>
           
           <p className="text-sm text-muted-foreground">
-            Non hai ricevuto l'email? Controlla la cartella spam o{" "}
+            Se non ricevi nulla, potresti non essere ancora registrato.{" "}
+            <Link
+              to="/register"
+              className="text-primary hover:text-primary/80 font-medium"
+            >
+              Crea un account
+            </Link>
+          </p>
+
+          <p className="text-sm text-muted-foreground">
+            Oppure{" "}
             <button
               onClick={() => setEmailSent(false)}
               className="text-primary hover:text-primary/80 font-medium"
             >
-              riprova
+              riprova con un'altra email
             </button>
           </p>
         </motion.div>
