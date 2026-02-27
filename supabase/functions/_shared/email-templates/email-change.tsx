@@ -34,7 +34,7 @@ export const EmailChangeEmail = ({
     <Preview>Conferma il cambio email su Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
         <Heading style={h1}>Conferma il cambio email</Heading>
         <Text style={text}>
           Hai richiesto di cambiare il tuo indirizzo email su Bravo! da{' '}

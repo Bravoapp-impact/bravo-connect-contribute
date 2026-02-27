@@ -217,7 +217,7 @@ serve(async (req: Request): Promise<Response> => {
   <title>Promemoria Esperienza</title>
 </head>
 <body style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #4F4F4F; max-width: 560px; margin: 0 auto; padding: 20px;">
-  <img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style="margin-bottom: 8px;" />
+  <img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style="margin-bottom: 8px;" />
   <h1 style="color: #373737; margin: 0 0 16px 0; font-size: 22px; font-weight: bold;">Promemoria</h1>
   
   <p style="white-space: pre-line; margin-bottom: 24px;">${introText}</p>
