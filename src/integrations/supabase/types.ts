@@ -510,6 +510,44 @@ export type Database = {
           },
         ]
       }
+      experience_reviews: {
+        Row: {
+          booking_id: string
+          created_at: string
+          feedback_improvement: string | null
+          feedback_positive: string | null
+          id: string
+          rating: number
+          would_recommend: boolean
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          feedback_improvement?: string | null
+          feedback_positive?: string | null
+          id?: string
+          rating: number
+          would_recommend: boolean
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          feedback_improvement?: string | null
+          feedback_positive?: string | null
+          id?: string
+          rating?: number
+          would_recommend?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       experiences: {
         Row: {
           address: string | null

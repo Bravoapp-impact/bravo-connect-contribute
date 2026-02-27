@@ -9,3 +9,5 @@ project_id = "cyazgtnjtnyxscfzsasp"
     verify_jwt = false
   [functions.submit-access-request]
     verify_jwt = false
+  [functions.send-feedback-request]
+    verify_jwt = false
