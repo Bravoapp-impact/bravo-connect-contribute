@@ -30,7 +30,7 @@ export const RecoveryEmail = ({
     <Preview>Reimposta la tua password su Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
         <Heading style={h1}>Reimposta la tua password</Heading>
         <Text style={text}>
           Abbiamo ricevuto una richiesta per reimpostare la password del tuo account Bravo!. Clicca il bottone qui sotto per scegliere una nuova password.

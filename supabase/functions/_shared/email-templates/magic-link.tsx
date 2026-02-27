@@ -30,7 +30,7 @@ export const MagicLinkEmail = ({
     <Preview>Il tuo link di accesso a Bravo!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
+        <Img src="https://cyazgtnjtnyxscfzsasp.supabase.co/storage/v1/object/public/email-assets/bravo-logo-icon.png" alt="Bravo!" width="28" height="28" style={logo} />
         <Heading style={h1}>Accedi a Bravo!</Heading>
         <Text style={text}>
           Clicca il bottone qui sotto per accedere al tuo account. Il link scadrà tra pochi minuti.
